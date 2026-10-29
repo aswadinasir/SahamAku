@@ -57,7 +57,7 @@
         <td>{{ b.pasaran }}</td>
         <td>{{ b.kaunter }}</td>
         <td><span class="tag {{ 'tag-beli' if b.jenis == 'BELI' else 'tag-jual' }}">{{ b.jenis }}</span></td>
-        <td>{{ "{:,}".format(b.kuantiti) }}</td>
+        <td>{{ b.kuantiti | fmt_unit }}</td>
         <td>{{ "%.4f"|format(b.harga_seunit) }}</td>
         <td>{{ "%.2f"|format(b.komisen) }}</td>
         <td>{{ "%.2f"|format(b.yuran_platform) }}</td>

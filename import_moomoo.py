@@ -63,9 +63,12 @@ def _parse_history_transactions(reader):
 
         try:
             dt = parse_datetime_moomoo(masa_isi)
-            kuantiti = int(round(float(qty_mentah)))
+            kuantiti = float(qty_mentah)
             harga_seunit = float(harga_mentah)
         except (ValueError, TypeError):
+            continue
+
+        if kuantiti <= 0:
             continue
 
         pasaran, mata_wang = _kesan_pasaran(baris)
@@ -154,7 +157,7 @@ def _parse_order_history_cost(reader):
 
         try:
             dt = parse_datetime_moomoo(masa_order)
-            kuantiti = int(round(float(qty_mentah)))
+            kuantiti = float(qty_mentah)
             harga_seunit = float(harga_mentah)
         except (ValueError, TypeError):
             continue

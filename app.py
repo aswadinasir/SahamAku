@@ -79,6 +79,14 @@ def simbol_mata_wang(kod):
     return "RM" if kod == "MYR" else (kod or "")
 
 
+@app.template_filter("fmt_unit")
+def fmt_unit(nilai):
+    """Format kuantiti unit (boleh pecahan, cth 0.0132 saham serpihan) dengan
+    pemisah ribu tapi tanpa sifar berlebihan di belakang titik perpuluhan."""
+    teks = f"{float(nilai):,.6f}".rstrip("0").rstrip(".")
+    return teks or "0"
+
+
 def kira_ledger_ikut_pasaran(transaksi):
     """Kira ledger & portfolio BERASINGAN bagi setiap pasaran (MY/US/...) supaya
     kos purata & baki tidak tercampur mata wang, kemudian gabung semula ledger
@@ -200,7 +208,7 @@ def tambah_transaksi():
             mata_wang,
             request.form["kaunter"].strip().upper(),
             request.form["jenis"],
-            int(request.form["kuantiti"]),
+            float(request.form["kuantiti"]),
             float(request.form["harga_seunit"]),
             fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
             fee["duti_setem"], fee["sst"], fee["caj_lain"],
@@ -232,7 +240,7 @@ def edit_transaksi(transaksi_id):
                 mata_wang,
                 request.form["kaunter"].strip().upper(),
                 request.form["jenis"],
-                int(request.form["kuantiti"]),
+                float(request.form["kuantiti"]),
                 float(request.form["harga_seunit"]),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
                 fee["duti_setem"], fee["sst"], fee["caj_lain"],
@@ -410,7 +418,7 @@ def import_csv_sahkan():
                 komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
-                tarikh, masa, pasaran, mata_wang, kaunter.strip().upper(), jenis, int(kuantiti), float(harga),
+                tarikh, masa, pasaran, mata_wang, kaunter.strip().upper(), jenis, float(kuantiti), float(harga),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
                 fee["duti_setem"], fee["sst"], fee["caj_lain"], nota,
             ),

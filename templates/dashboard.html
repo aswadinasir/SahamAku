@@ -59,7 +59,7 @@
     {% for p in pd.portfolio %}
     <tr>
       <td>{{ p.kaunter }}</td>
-      <td>{{ "{:,}".format(p.baki) }}</td>
+      <td>{{ p.baki | fmt_unit }}</td>
       <td>{{ "%.4f"|format(p.kos_purata) }}</td>
       <td>{{ "%.2f"|format(p.nilai_kos) }}</td>
     </tr>

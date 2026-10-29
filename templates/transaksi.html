@@ -35,7 +35,7 @@
     </div>
     <div class="borang-baris">
       <label>Kuantiti (unit)
-        <input type="number" name="kuantiti" min="1" step="1" required>
+        <input type="number" name="kuantiti" min="0.000001" step="any" required>
       </label>
       <label>Harga / Unit (ikut pasaran)
         <input type="number" name="harga_seunit" min="0" step="0.0001" required>
@@ -138,7 +138,7 @@
       <td>{{ t.pasaran }}</td>
       <td>{{ t.kaunter }}</td>
       <td><span class="tag {{ 'tag-beli' if t.jenis == 'BELI' else 'tag-jual' }}">{{ t.jenis }}</span></td>
-      <td>{{ "{:,}".format(t.kuantiti) }}</td>
+      <td>{{ t.kuantiti | fmt_unit }}</td>
       <td>{{ t.simbol }} {{ "%.4f"|format(t.harga_seunit) }}</td>
       <td>{{ "%.2f"|format(t.komisen) }}</td>
       <td>{{ "%.2f"|format(t.yuran_platform) }}</td>

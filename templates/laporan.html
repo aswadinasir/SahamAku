@@ -53,7 +53,7 @@
       <td>{{ t.tarikh }}</td>
       <td>{{ t.pasaran }}</td>
       <td>{{ t.kaunter }}</td>
-      <td>{{ "{:,}".format(t.kuantiti) }}</td>
+      <td>{{ t.kuantiti | fmt_unit }}</td>
       <td>{{ t.simbol }} {{ "%.4f"|format(t.kos_purata_sebelum) }}</td>
       <td>{{ t.simbol }} {{ "%.4f"|format(t.harga_seunit) }}</td>
       <td>{{ t.simbol }} {{ "%.2f"|format(t.caj) }}</td>
