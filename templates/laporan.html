@@ -8,8 +8,15 @@
   Ringkasan dikira berasingan ikut pasaran — RM dan mata wang asing tidak dijumlahkan terus.
 </p>
 
+{% if ringkasan_pasaran %}
+<div class="tab-bar" id="laporan-tab-bar">
+  {% for r in ringkasan_pasaran %}
+  <button type="button" class="btn {{ 'btn-utama' if loop.first else '' }}" data-tab-pasaran="{{ r.pasaran }}">Pasaran {{ r.pasaran }} ({{ r.simbol }})</button>
+  {% endfor %}
+</div>
+
 {% for r in ringkasan_pasaran %}
-<h2>Pasaran {{ r.pasaran }} ({{ r.simbol }})</h2>
+<div class="tab-kandungan" data-tab-kandungan="{{ r.pasaran }}" {{ "" if loop.first else "hidden" }}>
 <div class="ringkasan-grid">
   <div class="kad">
     <span class="kad-label">Jumlah Untung</span>
@@ -26,18 +33,15 @@
     <span class="kad-nilai {{ 'positif' if r.jumlah_untung_rugi >= 0 else 'negatif' }}">
       {{ r.simbol }} {{ "%.2f"|format(r.jumlah_untung_rugi) }}
     </span>
-    <span class="kad-catatan">Jumlah Untung + Jumlah Rugi (prestasi dagangan keseluruhan)</span>
+    <span class="kad-catatan">Jumlah Untung + Jumlah Rugi (prestasi dagangan pasaran ini)</span>
   </div>
 </div>
-{% endfor %}
 
 <h2>Rekod Jualan (Perincian Setiap Transaksi)</h2>
-{% if jualan %}
 <table class="jadual">
   <thead>
     <tr>
       <th>Tarikh</th>
-      <th>Pasaran</th>
       <th>Kaunter</th>
       <th>Kuantiti Jual</th>
       <th>Harga Beli Purata/Unit</th>
@@ -48,10 +52,9 @@
     </tr>
   </thead>
   <tbody>
-    {% for t in jualan %}
+    {% for t in jualan if t.pasaran == r.pasaran %}
     <tr>
       <td>{{ t.tarikh }}</td>
-      <td>{{ t.pasaran }}</td>
       <td>{{ t.kaunter }}</td>
       <td>{{ t.kuantiti | fmt_unit }}</td>
       <td>{{ t.simbol }} {{ "%.4f"|format(t.kos_purata_sebelum) }}</td>
@@ -65,7 +68,23 @@
     {% endfor %}
   </tbody>
 </table>
+</div>
+{% endfor %}
 {% else %}
 <p class="kosong">Tiada rekod jualan lagi.</p>
 {% endif %}
+
+<script>
+  (function () {
+    var butang = document.querySelectorAll("#laporan-tab-bar [data-tab-pasaran]");
+    var kandungan = document.querySelectorAll("[data-tab-kandungan]");
+    butang.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var dipilih = b.dataset.tabPasaran;
+        butang.forEach(function (x) { x.classList.toggle("btn-utama", x === b); });
+        kandungan.forEach(function (k) { k.hidden = k.dataset.tabKandungan !== dipilih; });
+      });
+    });
+  })();
+</script>
 {% endblock %}
