@@ -15,6 +15,7 @@
         <th></th>
         <th>Tarikh</th>
         <th>Masa</th>
+        <th>Pasaran</th>
         <th>Kaunter</th>
         <th>Jenis</th>
         <th>Kuantiti</th>
@@ -34,6 +35,8 @@
       <tr>
         <td>
           <input type="checkbox" name="pilih" value="{{ loop.index0 }}" {{ "" if b.mungkin_pendua else "checked" }}>
+          <input type="hidden" name="pasaran_{{ loop.index0 }}" value="{{ b.pasaran }}">
+          <input type="hidden" name="mata_wang_{{ loop.index0 }}" value="{{ b.mata_wang }}">
           <input type="hidden" name="kaunter_{{ loop.index0 }}" value="{{ b.kaunter }}">
           <input type="hidden" name="jenis_{{ loop.index0 }}" value="{{ b.jenis }}">
           <input type="hidden" name="kuantiti_{{ loop.index0 }}" value="{{ b.kuantiti }}">
@@ -51,6 +54,7 @@
           {% if b.tarikh_mungkin_tak_tepat %}<span class="tag tag-amaran">⚠ SEMAK TARIKH</span>{% endif %}
         </td>
         <td><input type="time" name="masa_{{ loop.index0 }}" step="1" value="{{ b.masa }}" style="width:7rem"></td>
+        <td>{{ b.pasaran }}</td>
         <td>{{ b.kaunter }}</td>
         <td><span class="tag {{ 'tag-beli' if b.jenis == 'BELI' else 'tag-jual' }}">{{ b.jenis }}</span></td>
         <td>{{ "{:,}".format(b.kuantiti) }}</td>

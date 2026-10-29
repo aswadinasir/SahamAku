@@ -68,10 +68,14 @@ def _parse_history_transactions(reader):
         except (ValueError, TypeError):
             continue
 
+        pasaran, mata_wang = _kesan_pasaran(baris)
+
         hasil.append(
             {
                 "tarikh": dt.date().isoformat(),
                 "masa": dt.time().isoformat(),
+                "pasaran": pasaran,
+                "mata_wang": mata_wang,
                 "kaunter": kaunter,
                 "jenis": jenis,
                 "kuantiti": kuantiti,
@@ -89,6 +93,13 @@ def _parse_history_transactions(reader):
         )
 
     return hasil
+
+
+def _kesan_pasaran(baris):
+    """Baca lajur "Markets" dan "Currency" CSV moomoo. Lalai MY/MYR jika kosong."""
+    pasaran = (baris.get("Markets") or "").strip().upper() or "MY"
+    mata_wang = (baris.get("Currency") or "").strip().upper() or "MYR"
+    return pasaran, mata_wang
 
 
 def _angka(teks):
@@ -164,10 +175,14 @@ def _parse_order_history_cost(reader):
         if abs(caj_lain) < 0.005:
             caj_lain = 0.0
 
+        pasaran, mata_wang = _kesan_pasaran(baris)
+
         hasil.append(
             {
                 "tarikh": dt.date().isoformat(),
                 "masa": dt.time().isoformat(),
+                "pasaran": pasaran,
+                "mata_wang": mata_wang,
                 "kaunter": kaunter,
                 "jenis": jenis,
                 "kuantiti": kuantiti,

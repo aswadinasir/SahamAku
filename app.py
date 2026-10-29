@@ -75,30 +75,58 @@ def muat_semua_modal(db):
     return [dict(r) for r in rows]
 
 
+def simbol_mata_wang(kod):
+    return "RM" if kod == "MYR" else (kod or "")
+
+
+def kira_ledger_ikut_pasaran(transaksi):
+    """Kira ledger & portfolio BERASINGAN bagi setiap pasaran (MY/US/...) supaya
+    kos purata & baki tidak tercampur mata wang, kemudian gabung semula ledger
+    untuk paparan senarai. Pulangkan (ledger_gabungan, {pasaran: portfolio}).
+    """
+    ledger_gabungan = []
+    portfolio_ikut_pasaran = {}
+    for p in sorted({t["pasaran"] for t in transaksi}):
+        tx_p = [t for t in transaksi if t["pasaran"] == p]
+        ledger_p, portfolio_p = kira_ledger(tx_p)
+        ledger_gabungan.extend(ledger_p)
+        portfolio_ikut_pasaran[p] = portfolio_p
+    return ledger_gabungan, portfolio_ikut_pasaran
+
+
 @app.route("/")
 def dashboard():
     db = get_db()
     transaksi = muat_semua_transaksi(db)
     modal = muat_semua_modal(db)
-    ledger, portfolio = kira_ledger(transaksi)
-    tunai = kira_tunai(transaksi, modal)
 
-    jumlah_untung_rugi = sum(
-        b["untung_rugi"] for b in ledger if b["untung_rugi"] is not None
-    )
-    jumlah_nilai_kos = sum(p["nilai_kos"] for p in portfolio.values())
+    pasaran_data = []
+    if transaksi:
+        ledger, portfolio_ikut_pasaran = kira_ledger_ikut_pasaran(transaksi)
+        for p, portfolio in sorted(portfolio_ikut_pasaran.items()):
+            ledger_p = [b for b in ledger if b["pasaran"] == p]
+            jumlah_ur_p = sum(b["untung_rugi"] for b in ledger_p if b["untung_rugi"] is not None)
+            mata_wang_p = next((t["mata_wang"] for t in transaksi if t["pasaran"] == p), "MYR")
+            portfolio_senarai = sorted(
+                ({"kaunter": k, **v} for k, v in portfolio.items()),
+                key=lambda x: x["kaunter"],
+            )
+            pasaran_data.append({
+                "pasaran": p,
+                "simbol": simbol_mata_wang(mata_wang_p),
+                "portfolio": portfolio_senarai,
+                "jumlah_nilai_kos": round(sum(v["nilai_kos"] for v in portfolio.values()), 2),
+                "jumlah_untung_rugi": round(jumlah_ur_p, 2),
+                "bilangan_kaunter": len(portfolio),
+            })
 
-    portfolio_senarai = sorted(
-        ({"kaunter": k, **v} for k, v in portfolio.items()),
-        key=lambda x: x["kaunter"],
-    )
+    # Modal & anggaran baki tunai: direkod dalam RM, jadi hanya pasaran MY diambil kira.
+    tx_my = [t for t in transaksi if t["pasaran"] == "MY"]
+    tunai = kira_tunai(tx_my, modal)
 
     return render_template(
         "dashboard.html",
-        portfolio=portfolio_senarai,
-        jumlah_untung_rugi=round(jumlah_untung_rugi, 2),
-        jumlah_nilai_kos=round(jumlah_nilai_kos, 2),
-        bilangan_kaunter=len(portfolio),
+        pasaran_data=pasaran_data,
         jumlah_modal=tunai["jumlah_modal"],
         baki_tunai=tunai["baki_tunai"],
     )
@@ -108,7 +136,9 @@ def dashboard():
 def senarai_transaksi():
     db = get_db()
     transaksi = muat_semua_transaksi(db)
-    ledger, _ = kira_ledger(transaksi)
+    ledger, _ = kira_ledger_ikut_pasaran(transaksi)
+    for b in ledger:
+        b["simbol"] = simbol_mata_wang(b["mata_wang"])
 
     senarai_kaunter = sorted({t["kaunter"] for t in transaksi})
 
@@ -120,6 +150,7 @@ def senarai_transaksi():
         # Lawatan pertama / klik nav - lalai tapis kepada bulan semasa.
         f_dari, f_hingga = julat_bulan_semasa()
     f_kaunter = request.args.get("kaunter", "").strip().upper()
+    f_pasaran = request.args.get("pasaran", "").strip().upper()
 
     ledger_tapis = ledger
     if f_dari:
@@ -128,6 +159,8 @@ def senarai_transaksi():
         ledger_tapis = [t for t in ledger_tapis if t["tarikh"] <= f_hingga]
     if f_kaunter:
         ledger_tapis = [t for t in ledger_tapis if t["kaunter"] == f_kaunter]
+    if f_pasaran:
+        ledger_tapis = [t for t in ledger_tapis if t["pasaran"] == f_pasaran]
 
     ledger_tapis.sort(key=lambda t: (t["tarikh"], t["masa"], t["id"]), reverse=True)
     diimport = request.args.get("diimport", type=int)
@@ -137,25 +170,34 @@ def senarai_transaksi():
         hari_ini=date.today().isoformat(),
         diimport=diimport,
         senarai_kaunter=senarai_kaunter,
+        senarai_pasaran=sorted({t["pasaran"] for t in transaksi}),
         f_dari=f_dari,
         f_hingga=f_hingga,
         f_kaunter=f_kaunter,
-        ada_tapisan=bool(f_dari or f_hingga or f_kaunter),
+        f_pasaran=f_pasaran,
+        ada_tapisan=bool(f_dari or f_hingga or f_kaunter or f_pasaran),
     )
+
+
+PASARAN_MATA_WANG_LALAI = {"MY": "MYR", "US": "USD"}
 
 
 @app.route("/transaksi/tambah", methods=["POST"])
 def tambah_transaksi():
     db = get_db()
     fee = _borang_fee(request.form)
+    pasaran = (request.form.get("pasaran") or "MY").strip().upper()
+    mata_wang = PASARAN_MATA_WANG_LALAI.get(pasaran, pasaran)
     db.execute(
         """INSERT INTO transaksi
-           (tarikh, masa, kaunter, jenis, kuantiti, harga_seunit,
+           (tarikh, masa, pasaran, mata_wang, kaunter, jenis, kuantiti, harga_seunit,
             komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             request.form["tarikh"],
             request.form.get("masa", "").strip(),
+            pasaran,
+            mata_wang,
             request.form["kaunter"].strip().upper(),
             request.form["jenis"],
             int(request.form["kuantiti"]),
@@ -174,15 +216,20 @@ def edit_transaksi(transaksi_id):
     db = get_db()
     if request.method == "POST":
         fee = _borang_fee(request.form)
+        pasaran = (request.form.get("pasaran") or "MY").strip().upper()
+        mata_wang = PASARAN_MATA_WANG_LALAI.get(pasaran, pasaran)
         db.execute(
             """UPDATE transaksi
-               SET tarikh = ?, masa = ?, kaunter = ?, jenis = ?, kuantiti = ?, harga_seunit = ?,
+               SET tarikh = ?, masa = ?, pasaran = ?, mata_wang = ?, kaunter = ?, jenis = ?,
+                   kuantiti = ?, harga_seunit = ?,
                    komisen = ?, yuran_platform = ?, yuran_kliring = ?, duti_setem = ?, sst = ?, caj_lain = ?,
                    nota = ?
                WHERE id = ?""",
             (
                 request.form["tarikh"],
                 request.form.get("masa", "").strip(),
+                pasaran,
+                mata_wang,
                 request.form["kaunter"].strip().upper(),
                 request.form["jenis"],
                 int(request.form["kuantiti"]),
@@ -218,10 +265,12 @@ def senarai_modal():
     jumlah_pengeluaran = sum(m["jumlah"] for m in modal if m["jenis"] == "KELUAR")
     jumlah_modal = jumlah_deposit - jumlah_pengeluaran
 
+    # Modal direkod dalam RM, jadi hanya pasaran MY diambil kira di sini.
     transaksi = muat_semua_transaksi(db)
-    _, portfolio = kira_ledger(transaksi)
+    tx_my = [t for t in transaksi if t["pasaran"] == "MY"]
+    _, portfolio = kira_ledger(tx_my)
     nilai_pelaburan = sum(p["nilai_kos"] for p in portfolio.values())
-    tunai = kira_tunai(transaksi, modal)
+    tunai = kira_tunai(tx_my, modal)
 
     return render_template(
         "modal.html",
@@ -349,17 +398,19 @@ def import_csv_sahkan():
         kuantiti = request.form.get(f"kuantiti_{i}")
         harga = request.form.get(f"harga_{i}")
         masa = request.form.get(f"masa_{i}", "")
+        pasaran = (request.form.get(f"pasaran_{i}") or "MY").strip().upper()
+        mata_wang = (request.form.get(f"mata_wang_{i}") or PASARAN_MATA_WANG_LALAI.get(pasaran, pasaran)).strip().upper()
         nota = request.form.get(f"nota_{i}", "")
         if not (tarikh and kaunter and jenis and kuantiti and harga):
             continue
         fee = _borang_fee(request.form, indeks=i)
         db.execute(
             """INSERT INTO transaksi
-               (tarikh, masa, kaunter, jenis, kuantiti, harga_seunit,
+               (tarikh, masa, pasaran, mata_wang, kaunter, jenis, kuantiti, harga_seunit,
                 komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
-                tarikh, masa, kaunter.strip().upper(), jenis, int(kuantiti), float(harga),
+                tarikh, masa, pasaran, mata_wang, kaunter.strip().upper(), jenis, int(kuantiti), float(harga),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
                 fee["duti_setem"], fee["sst"], fee["caj_lain"], nota,
             ),
@@ -373,7 +424,7 @@ def import_csv_sahkan():
 def laporan_untung_rugi():
     db = get_db()
     transaksi = muat_semua_transaksi(db)
-    ledger, _ = kira_ledger(transaksi)
+    ledger, _ = kira_ledger_ikut_pasaran(transaksi)
     jualan = [b for b in ledger if b["jenis"] == "JUAL"]
     jualan.sort(key=lambda t: (t["tarikh"], t["masa"], t["id"]), reverse=True)
 
@@ -382,21 +433,31 @@ def laporan_untung_rugi():
         b["peratus_untung_rugi"] = (
             round((b["untung_rugi"] / kos_asas) * 100, 2) if kos_asas > 0 else None
         )
+        b["simbol"] = simbol_mata_wang(b["mata_wang"])
 
-    jumlah_untung_rugi = sum(b["untung_rugi"] for b in jualan)
-    jumlah_untung = sum(b["untung_rugi"] for b in jualan if b["untung_rugi"] > 0)
-    jumlah_rugi = sum(b["untung_rugi"] for b in jualan if b["untung_rugi"] < 0)
-    bilangan_untung = sum(1 for b in jualan if b["untung_rugi"] > 0)
-    bilangan_rugi = sum(1 for b in jualan if b["untung_rugi"] < 0)
+    # Ringkasan dikira BERASINGAN ikut pasaran - RM dan USD tak boleh dijumlahkan terus.
+    ringkasan_pasaran = []
+    for p in sorted({t["pasaran"] for t in transaksi}):
+        jualan_p = [b for b in jualan if b["pasaran"] == p]
+        if not jualan_p:
+            continue
+        jumlah_untung_p = sum(b["untung_rugi"] for b in jualan_p if b["untung_rugi"] > 0)
+        jumlah_rugi_p = sum(b["untung_rugi"] for b in jualan_p if b["untung_rugi"] < 0)
+        ringkasan_pasaran.append({
+            "pasaran": p,
+            "simbol": jualan_p[0]["simbol"],
+            "jumlah_untung": round(jumlah_untung_p, 2),
+            "jumlah_rugi": round(jumlah_rugi_p, 2),
+            "jumlah_untung_rugi": round(jumlah_untung_p + jumlah_rugi_p, 2),
+            "bilangan_untung": sum(1 for b in jualan_p if b["untung_rugi"] > 0),
+            "bilangan_rugi": sum(1 for b in jualan_p if b["untung_rugi"] < 0),
+            "bilangan_jualan": len(jualan_p),
+        })
 
     return render_template(
         "laporan.html",
         jualan=jualan,
-        jumlah_untung_rugi=round(jumlah_untung_rugi, 2),
-        jumlah_untung=round(jumlah_untung, 2),
-        jumlah_rugi=round(jumlah_rugi, 2),
-        bilangan_untung=bilangan_untung,
-        bilangan_rugi=bilangan_rugi,
+        ringkasan_pasaran=ringkasan_pasaran,
         bilangan_jualan=len(jualan),
     )
 

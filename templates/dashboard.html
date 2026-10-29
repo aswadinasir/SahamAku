@@ -5,20 +5,6 @@
 
 <div class="ringkasan-grid">
   <div class="kad">
-    <span class="kad-label">Bil. Kaunter Dipegang</span>
-    <span class="kad-nilai">{{ bilangan_kaunter }}</span>
-  </div>
-  <div class="kad">
-    <span class="kad-label">Jumlah Nilai Kos Pegangan</span>
-    <span class="kad-nilai">RM {{ "%.2f"|format(jumlah_nilai_kos) }}</span>
-  </div>
-  <div class="kad">
-    <span class="kad-label">Jumlah Untung/Rugi Direalisasi</span>
-    <span class="kad-nilai {{ 'positif' if jumlah_untung_rugi >= 0 else 'negatif' }}">
-      RM {{ "%.2f"|format(jumlah_untung_rugi) }}
-    </span>
-  </div>
-  <div class="kad">
     <span class="kad-label">Jumlah Modal Bersih (Dimasukkan)</span>
     <span class="kad-nilai {{ 'positif' if jumlah_modal >= 0 else 'negatif' }}">
       RM {{ "%.2f"|format(jumlah_modal) }}
@@ -32,23 +18,45 @@
   </div>
 </div>
 <p class="catatan-kecil" style="margin-top:-1rem;margin-bottom:1.5rem;">
-  Anggaran Baki Tunai = Jumlah Modal Bersih − perbelanjaan bersih beli/jual saham. Kemaskini di halaman
-  <a href="{{ url_for('senarai_modal') }}">Modal</a> setiap kali anda masuk/keluarkan wang dari akaun pelaburan.
+  Anggaran Baki Tunai = Jumlah Modal Bersih − perbelanjaan bersih beli/jual saham <strong>pasaran MY (RM) sahaja</strong>.
+  Kemaskini di halaman <a href="{{ url_for('senarai_modal') }}">Modal</a> setiap kali anda masuk/keluarkan wang dari akaun pelaburan.
 </p>
 
-<h2>Baki Saham Mengikut Kaunter</h2>
-{% if portfolio %}
+{% if not pasaran_data %}
+<p class="kosong">Tiada pegangan saham lagi. Sila tambah transaksi di halaman <a href="{{ url_for('senarai_transaksi') }}">Transaksi</a>.</p>
+{% endif %}
+
+{% for pd in pasaran_data %}
+<h2>Pasaran {{ pd.pasaran }} ({{ pd.simbol }})</h2>
+<div class="ringkasan-grid">
+  <div class="kad">
+    <span class="kad-label">Bil. Kaunter Dipegang</span>
+    <span class="kad-nilai">{{ pd.bilangan_kaunter }}</span>
+  </div>
+  <div class="kad">
+    <span class="kad-label">Jumlah Nilai Kos Pegangan</span>
+    <span class="kad-nilai">{{ pd.simbol }} {{ "%.2f"|format(pd.jumlah_nilai_kos) }}</span>
+  </div>
+  <div class="kad">
+    <span class="kad-label">Jumlah Untung/Rugi Direalisasi</span>
+    <span class="kad-nilai {{ 'positif' if pd.jumlah_untung_rugi >= 0 else 'negatif' }}">
+      {{ pd.simbol }} {{ "%.2f"|format(pd.jumlah_untung_rugi) }}
+    </span>
+  </div>
+</div>
+
+{% if pd.portfolio %}
 <table class="jadual">
   <thead>
     <tr>
       <th>Kaunter</th>
       <th>Baki Unit</th>
-      <th>Kos Purata / Unit (RM)</th>
-      <th>Jumlah Nilai Kos (RM)</th>
+      <th>Kos Purata / Unit ({{ pd.simbol }})</th>
+      <th>Jumlah Nilai Kos ({{ pd.simbol }})</th>
     </tr>
   </thead>
   <tbody>
-    {% for p in portfolio %}
+    {% for p in pd.portfolio %}
     <tr>
       <td>{{ p.kaunter }}</td>
       <td>{{ "{:,}".format(p.baki) }}</td>
@@ -59,6 +67,7 @@
   </tbody>
 </table>
 {% else %}
-<p class="kosong">Tiada pegangan saham lagi. Sila tambah transaksi di halaman <a href="{{ url_for('senarai_transaksi') }}">Transaksi</a>.</p>
+<p class="kosong">Tiada pegangan semasa untuk pasaran ini (semua sudah dijual).</p>
 {% endif %}
+{% endfor %}
 {% endblock %}

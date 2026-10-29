@@ -17,6 +17,12 @@
       <label>Masa (pilihan)
         <input type="time" name="masa" step="1">
       </label>
+      <label>Pasaran
+        <select name="pasaran">
+          <option value="MY">MY (RM)</option>
+          <option value="US">US (USD)</option>
+        </select>
+      </label>
       <label>Kaunter
         <input type="text" name="kaunter" placeholder="Cth: MAYBANK" required>
       </label>
@@ -31,29 +37,29 @@
       <label>Kuantiti (unit)
         <input type="number" name="kuantiti" min="1" step="1" required>
       </label>
-      <label>Harga / Unit (RM)
+      <label>Harga / Unit (ikut pasaran)
         <input type="number" name="harga_seunit" min="0" step="0.0001" required>
       </label>
     </div>
     <div class="borang-baris">
-      <label>Komisen (RM)
+      <label>Komisen
         <input type="number" name="komisen" min="0" step="0.01" value="0">
       </label>
-      <label>Yuran Platform (RM)
+      <label>Yuran Platform
         <input type="number" name="yuran_platform" min="0" step="0.01" value="0">
       </label>
-      <label>Yuran Kliring (RM)
+      <label>Yuran Kliring
         <input type="number" name="yuran_kliring" min="0" step="0.01" value="0">
       </label>
     </div>
     <div class="borang-baris">
-      <label>Duti Setem (RM)
+      <label>Duti Setem
         <input type="number" name="duti_setem" min="0" step="0.01" value="0">
       </label>
-      <label>SST (RM)
+      <label>SST
         <input type="number" name="sst" min="0" step="0.01" value="0">
       </label>
-      <label>Caj Lain (RM)
+      <label>Caj Lain
         <input type="number" name="caj_lain" min="0" step="0.01" value="0">
       </label>
     </div>
@@ -85,11 +91,19 @@
         {% endfor %}
       </select>
     </label>
+    <label>Pasaran
+      <select name="pasaran">
+        <option value="">Semua Pasaran</option>
+        {% for p in senarai_pasaran %}
+        <option value="{{ p }}" {{ "selected" if f_pasaran == p }}>{{ p }}</option>
+        {% endfor %}
+      </select>
+    </label>
   </div>
   <div class="borang-baris">
     <button type="submit" class="btn btn-utama">Tapis</button>
     {% if ada_tapisan %}
-    <a href="{{ url_for('senarai_transaksi', dari='', hingga='', kaunter='') }}" class="btn">Kosongkan Tapisan</a>
+    <a href="{{ url_for('senarai_transaksi', dari='', hingga='', kaunter='', pasaran='') }}" class="btn">Kosongkan Tapisan</a>
     {% endif %}
   </div>
 </form>
@@ -100,6 +114,7 @@
   <thead>
     <tr>
       <th>Tarikh</th>
+      <th>Pasaran</th>
       <th>Kaunter</th>
       <th>Jenis</th>
       <th>Kuantiti</th>
@@ -120,20 +135,21 @@
     {% for t in ledger %}
     <tr>
       <td>{{ t.tarikh }}</td>
+      <td>{{ t.pasaran }}</td>
       <td>{{ t.kaunter }}</td>
       <td><span class="tag {{ 'tag-beli' if t.jenis == 'BELI' else 'tag-jual' }}">{{ t.jenis }}</span></td>
       <td>{{ "{:,}".format(t.kuantiti) }}</td>
-      <td>{{ "%.4f"|format(t.harga_seunit) }}</td>
+      <td>{{ t.simbol }} {{ "%.4f"|format(t.harga_seunit) }}</td>
       <td>{{ "%.2f"|format(t.komisen) }}</td>
       <td>{{ "%.2f"|format(t.yuran_platform) }}</td>
       <td>{{ "%.2f"|format(t.yuran_kliring) }}</td>
       <td>{{ "%.2f"|format(t.duti_setem) }}</td>
       <td>{{ "%.2f"|format(t.sst) }}</td>
       <td>{{ "%.2f"|format(t.caj_lain) }}</td>
-      <td>{{ "%.2f"|format(t.caj) }}</td>
+      <td>{{ t.simbol }} {{ "%.2f"|format(t.caj) }}</td>
       <td>
         {% if t.untung_rugi is not none %}
-          <span class="{{ 'positif' if t.untung_rugi >= 0 else 'negatif' }}">RM {{ "%.2f"|format(t.untung_rugi) }}</span>
+          <span class="{{ 'positif' if t.untung_rugi >= 0 else 'negatif' }}">{{ t.simbol }} {{ "%.2f"|format(t.untung_rugi) }}</span>
         {% else %}
           -
         {% endif %}

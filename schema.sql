@@ -2,6 +2,8 @@ CREATE TABLE IF NOT EXISTS transaksi (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tarikh TEXT NOT NULL,
     masa TEXT NOT NULL DEFAULT '',
+    pasaran TEXT NOT NULL DEFAULT 'MY',
+    mata_wang TEXT NOT NULL DEFAULT 'MYR',
     kaunter TEXT NOT NULL,
     jenis TEXT NOT NULL CHECK (jenis IN ('BELI', 'JUAL')),
     kuantiti INTEGER NOT NULL CHECK (kuantiti > 0),
@@ -18,6 +20,7 @@ CREATE TABLE IF NOT EXISTS transaksi (
 
 CREATE INDEX IF NOT EXISTS idx_transaksi_kaunter ON transaksi (kaunter);
 CREATE INDEX IF NOT EXISTS idx_transaksi_tarikh ON transaksi (tarikh);
+CREATE INDEX IF NOT EXISTS idx_transaksi_pasaran ON transaksi (pasaran);
 
 CREATE TABLE IF NOT EXISTS modal (
     id INTEGER PRIMARY KEY AUTOINCREMENT,

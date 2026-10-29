@@ -12,6 +12,12 @@
       <label>Masa (pilihan)
         <input type="time" name="masa" step="1" value="{{ t.masa or '' }}">
       </label>
+      <label>Pasaran
+        <select name="pasaran">
+          <option value="MY" {{ "selected" if t.pasaran == "MY" }}>MY (RM)</option>
+          <option value="US" {{ "selected" if t.pasaran == "US" }}>US (USD)</option>
+        </select>
+      </label>
       <label>Kaunter
         <input type="text" name="kaunter" value="{{ t.kaunter }}" required>
       </label>
@@ -26,29 +32,29 @@
       <label>Kuantiti (unit)
         <input type="number" name="kuantiti" min="1" step="1" value="{{ t.kuantiti }}" required>
       </label>
-      <label>Harga / Unit (RM)
+      <label>Harga / Unit (ikut pasaran)
         <input type="number" name="harga_seunit" min="0" step="0.0001" value="{{ t.harga_seunit }}" required>
       </label>
     </div>
     <div class="borang-baris">
-      <label>Komisen (RM)
+      <label>Komisen
         <input type="number" name="komisen" min="0" step="0.01" value="{{ t.komisen }}">
       </label>
-      <label>Yuran Platform (RM)
+      <label>Yuran Platform
         <input type="number" name="yuran_platform" min="0" step="0.01" value="{{ t.yuran_platform }}">
       </label>
-      <label>Yuran Kliring (RM)
+      <label>Yuran Kliring
         <input type="number" name="yuran_kliring" min="0" step="0.01" value="{{ t.yuran_kliring }}">
       </label>
     </div>
     <div class="borang-baris">
-      <label>Duti Setem (RM)
+      <label>Duti Setem
         <input type="number" name="duti_setem" min="0" step="0.01" value="{{ t.duti_setem }}">
       </label>
-      <label>SST (RM)
+      <label>SST
         <input type="number" name="sst" min="0" step="0.01" value="{{ t.sst }}">
       </label>
-      <label>Caj Lain (RM)
+      <label>Caj Lain
         <input type="number" name="caj_lain" min="0" step="0.01" value="{{ t.caj_lain }}">
       </label>
     </div>
