@@ -107,6 +107,12 @@
 </script>
 
 <h2>Senarai Transaksi</h2>
+<div class="tab-bar">
+  <a class="btn {{ 'btn-utama' if not f_pasaran }}" href="{{ url_for('senarai_transaksi', dari=f_dari, hingga=f_hingga, kaunter=f_kaunter, pasaran='') }}">Semua Pasaran</a>
+  {% for p in senarai_pasaran %}
+  <a class="btn {{ 'btn-utama' if f_pasaran == p }}" href="{{ url_for('senarai_transaksi', dari=f_dari, hingga=f_hingga, kaunter=f_kaunter, pasaran=p) }}">Pasaran {{ p }}</a>
+  {% endfor %}
+</div>
 <form method="get" action="{{ url_for('senarai_transaksi') }}" class="borang borang-tapis">
   <div class="borang-baris">
     <label>Dari Tarikh
