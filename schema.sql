@@ -1,0 +1,14 @@
+CREATE TABLE IF NOT EXISTS transaksi (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tarikh TEXT NOT NULL,
+    kaunter TEXT NOT NULL,
+    jenis TEXT NOT NULL CHECK (jenis IN ('BELI', 'JUAL')),
+    kuantiti INTEGER NOT NULL CHECK (kuantiti > 0),
+    harga_seunit REAL NOT NULL CHECK (harga_seunit >= 0),
+    caj REAL NOT NULL DEFAULT 0 CHECK (caj >= 0),
+    nota TEXT,
+    dicipta_pada TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_transaksi_kaunter ON transaksi (kaunter);
+CREATE INDEX IF NOT EXISTS idx_transaksi_tarikh ON transaksi (tarikh);

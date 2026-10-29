@@ -1,0 +1,201 @@
+:root {
+  --warna-utama: #1f6f50;
+  --warna-utama-gelap: #154f38;
+  --warna-teks: #1a1a1a;
+  --warna-latar: #f6f7f5;
+  --warna-kad: #ffffff;
+  --warna-sempadan: #e0e2de;
+  --warna-positif: #1f8a4c;
+  --warna-negatif: #c0392b;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+  background: var(--warna-latar);
+  color: var(--warna-teks);
+}
+
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--warna-utama);
+  color: white;
+  padding: 0.9rem 1.5rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.navbar-brand {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+.navbar nav a {
+  color: white;
+  text-decoration: none;
+  margin-left: 1.2rem;
+  font-weight: 500;
+}
+
+.navbar nav a:hover {
+  text-decoration: underline;
+}
+
+.container {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+h1 { margin-top: 0; }
+
+.ringkasan-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.kad {
+  background: var(--warna-kad);
+  border: 1px solid var(--warna-sempadan);
+  border-radius: 10px;
+  padding: 1.1rem 1.3rem;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.kad-label {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  margin-bottom: 0.3rem;
+}
+
+.kad-nilai {
+  display: block;
+  font-size: 1.6rem;
+  font-weight: 700;
+}
+
+.positif { color: var(--warna-positif); }
+.negatif { color: var(--warna-negatif); }
+
+.jadual {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--warna-kad);
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.04);
+}
+
+.jadual th, .jadual td {
+  padding: 0.65rem 0.8rem;
+  text-align: left;
+  border-bottom: 1px solid var(--warna-sempadan);
+}
+
+.jadual th {
+  background: #eef1ec;
+  font-weight: 600;
+  font-size: 0.85rem;
+}
+
+.jadual tbody tr:hover {
+  background: #fafbf9;
+}
+
+.tag {
+  padding: 0.15rem 0.55rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: white;
+}
+
+.tag-beli { background: #2b7fd1; }
+.tag-jual { background: #c0392b; }
+
+.tindakan a, .tindakan .btn-link {
+  margin-right: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--warna-negatif);
+  cursor: pointer;
+  padding: 0;
+  font: inherit;
+  text-decoration: underline;
+}
+
+.borang {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+
+.borang-baris {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.borang-baris label {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+  font-weight: 600;
+  gap: 0.3rem;
+  flex: 1;
+  min-width: 160px;
+}
+
+.borang-baris label.lebar-penuh {
+  flex-basis: 100%;
+}
+
+.borang input, .borang select {
+  padding: 0.5rem 0.6rem;
+  border: 1px solid var(--warna-sempadan);
+  border-radius: 6px;
+  font-size: 0.95rem;
+}
+
+.btn {
+  display: inline-block;
+  padding: 0.55rem 1.2rem;
+  border-radius: 6px;
+  border: 1px solid var(--warna-sempadan);
+  background: #fff;
+  color: var(--warna-teks);
+  text-decoration: none;
+  cursor: pointer;
+  font-weight: 600;
+  width: fit-content;
+}
+
+.btn-utama {
+  background: var(--warna-utama);
+  border-color: var(--warna-utama);
+  color: white;
+}
+
+.btn-utama:hover {
+  background: var(--warna-utama-gelap);
+}
+
+.kosong {
+  color: #666;
+  font-style: italic;
+}
+
+section.kad {
+  margin-bottom: 1.5rem;
+}

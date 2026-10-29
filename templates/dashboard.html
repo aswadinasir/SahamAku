@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+{% block title %}Dashboard - SahamAku{% endblock %}
+{% block content %}
+<h1>Dashboard Portfolio</h1>
+
+<div class="ringkasan-grid">
+  <div class="kad">
+    <span class="kad-label">Bilangan Kaunter Dipegang</span>
+    <span class="kad-nilai">{{ bilangan_kaunter }}</span>
+  </div>
+  <div class="kad">
+    <span class="kad-label">Jumlah Nilai Kos Pegangan</span>
+    <span class="kad-nilai">RM {{ "%.2f"|format(jumlah_nilai_kos) }}</span>
+  </div>
+  <div class="kad">
+    <span class="kad-label">Jumlah Untung/Rugi Direalisasi</span>
+    <span class="kad-nilai {{ 'positif' if jumlah_untung_rugi >= 0 else 'negatif' }}">
+      RM {{ "%.2f"|format(jumlah_untung_rugi) }}
+    </span>
+  </div>
+</div>
+
+<h2>Baki Saham Mengikut Kaunter</h2>
+{% if portfolio %}
+<table class="jadual">
+  <thead>
+    <tr>
+      <th>Kaunter</th>
+      <th>Baki Unit</th>
+      <th>Kos Purata / Unit (RM)</th>
+      <th>Jumlah Nilai Kos (RM)</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for p in portfolio %}
+    <tr>
+      <td>{{ p.kaunter }}</td>
+      <td>{{ "{:,}".format(p.baki) }}</td>
+      <td>{{ "%.4f"|format(p.kos_purata) }}</td>
+      <td>{{ "%.2f"|format(p.nilai_kos) }}</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="kosong">Tiada pegangan saham lagi. Sila tambah transaksi di halaman <a href="{{ url_for('senarai_transaksi') }}">Transaksi</a>.</p>
+{% endif %}
+{% endblock %}

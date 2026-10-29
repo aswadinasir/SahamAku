@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Edit Transaksi - SahamAku{% endblock %}
+{% block content %}
+<h1>Edit Transaksi</h1>
+
+<section class="kad">
+  <form method="post" class="borang">
+    <div class="borang-baris">
+      <label>Tarikh
+        <input type="date" name="tarikh" value="{{ t.tarikh }}" required>
+      </label>
+      <label>Kaunter
+        <input type="text" name="kaunter" value="{{ t.kaunter }}" required>
+      </label>
+      <label>Jenis
+        <select name="jenis" required>
+          <option value="BELI" {{ "selected" if t.jenis == "BELI" }}>BELI</option>
+          <option value="JUAL" {{ "selected" if t.jenis == "JUAL" }}>JUAL</option>
+        </select>
+      </label>
+    </div>
+    <div class="borang-baris">
+      <label>Kuantiti (unit)
+        <input type="number" name="kuantiti" min="1" step="1" value="{{ t.kuantiti }}" required>
+      </label>
+      <label>Harga / Unit (RM)
+        <input type="number" name="harga_seunit" min="0" step="0.0001" value="{{ t.harga_seunit }}" required>
+      </label>
+      <label>Kos / Caj (RM)
+        <input type="number" name="caj" min="0" step="0.01" value="{{ t.caj }}">
+      </label>
+    </div>
+    <div class="borang-baris">
+      <label class="lebar-penuh">Nota (pilihan)
+        <input type="text" name="nota" value="{{ t.nota or '' }}">
+      </label>
+    </div>
+    <button type="submit" class="btn btn-utama">Kemaskini</button>
+    <a href="{{ url_for('senarai_transaksi') }}" class="btn">Batal</a>
+  </form>
+</section>
+{% endblock %}
