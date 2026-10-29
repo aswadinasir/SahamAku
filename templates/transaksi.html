@@ -31,8 +31,27 @@
       <label>Harga / Unit (RM)
         <input type="number" name="harga_seunit" min="0" step="0.0001" required>
       </label>
-      <label>Kos / Caj (RM)
-        <input type="number" name="caj" min="0" step="0.01" value="0">
+    </div>
+    <div class="borang-baris">
+      <label>Komisen (RM)
+        <input type="number" name="komisen" min="0" step="0.01" value="0">
+      </label>
+      <label>Yuran Platform (RM)
+        <input type="number" name="yuran_platform" min="0" step="0.01" value="0">
+      </label>
+      <label>Yuran Kliring (RM)
+        <input type="number" name="yuran_kliring" min="0" step="0.01" value="0">
+      </label>
+    </div>
+    <div class="borang-baris">
+      <label>Duti Setem (RM)
+        <input type="number" name="duti_setem" min="0" step="0.01" value="0">
+      </label>
+      <label>SST (RM)
+        <input type="number" name="sst" min="0" step="0.01" value="0">
+      </label>
+      <label>Caj Lain (RM)
+        <input type="number" name="caj_lain" min="0" step="0.01" value="0">
       </label>
     </div>
     <div class="borang-baris">
@@ -81,7 +100,13 @@
       <th>Jenis</th>
       <th>Kuantiti</th>
       <th>Harga/Unit</th>
-      <th>Caj</th>
+      <th>Komisen</th>
+      <th>Yuran Platform</th>
+      <th>Yuran Kliring</th>
+      <th>Duti Setem</th>
+      <th>SST</th>
+      <th>Caj Lain</th>
+      <th>Jumlah Caj</th>
       <th>Untung/Rugi</th>
       <th>Baki Selepas</th>
       <th>Nota</th>
@@ -96,6 +121,12 @@
       <td><span class="tag {{ 'tag-beli' if t.jenis == 'BELI' else 'tag-jual' }}">{{ t.jenis }}</span></td>
       <td>{{ "{:,}".format(t.kuantiti) }}</td>
       <td>{{ "%.4f"|format(t.harga_seunit) }}</td>
+      <td>{{ "%.2f"|format(t.komisen) }}</td>
+      <td>{{ "%.2f"|format(t.yuran_platform) }}</td>
+      <td>{{ "%.2f"|format(t.yuran_kliring) }}</td>
+      <td>{{ "%.2f"|format(t.duti_setem) }}</td>
+      <td>{{ "%.2f"|format(t.sst) }}</td>
+      <td>{{ "%.2f"|format(t.caj_lain) }}</td>
       <td>{{ "%.2f"|format(t.caj) }}</td>
       <td>
         {% if t.untung_rugi is not none %}

@@ -71,6 +71,12 @@ def _parse_history_transactions(reader):
                 "jenis": jenis,
                 "kuantiti": kuantiti,
                 "harga_seunit": harga_seunit,
+                "komisen": 0.0,
+                "yuran_platform": 0.0,
+                "yuran_kliring": 0.0,
+                "duti_setem": 0.0,
+                "sst": 0.0,
+                "caj_lain": 0.0,
                 "caj": 0.0,
                 "nota": f"Import moomoo (kod {simbol})",
             }
@@ -88,22 +94,6 @@ def _angka(teks):
         return float(teks)
     except ValueError:
         return 0.0
-
-
-def _pecahan_fee(baris):
-    """Bina teks pecahan setiap fee (Komisen, Yuran Platform, Kliring,
-    Duti Setem, SST) daripada satu baris CSV Order History (Cost).
-    Fee yang bernilai 0 tidak disenaraikan.
-    """
-    fee = [
-        ("Komisen", _angka(baris.get("Commission"))),
-        ("Yuran Platform", _angka(baris.get("Platform Fees"))),
-        ("Yuran Kliring", _angka(baris.get("Clearing Fee"))),
-        ("Duti Setem", _angka(baris.get("Stamp Duty"))),
-        ("SST", _angka(baris.get("SST"))),
-    ]
-    bahagian = [f"{nama} RM{nilai:.2f}" for nama, nilai in fee if nilai]
-    return ", ".join(bahagian)
 
 
 def _parse_order_history_cost(reader):
@@ -143,23 +133,29 @@ def _parse_order_history_cost(reader):
         qty_mentah, harga_mentah = diisi.split("@", 1)
         qty_mentah = qty_mentah.replace(",", "").strip()
         harga_mentah = harga_mentah.replace(",", "").strip()
-        caj_mentah = (baris.get("Total") or "").replace(",", "").strip()
 
         try:
             tarikh = parse_fill_time(masa_order)
             kuantiti = int(round(float(qty_mentah)))
             harga_seunit = float(harga_mentah)
-            caj = round(float(caj_mentah), 2) if caj_mentah else 0.0
         except (ValueError, TypeError):
             continue
 
         if kuantiti <= 0:
             continue
 
-        pecahan = _pecahan_fee(baris)
-        nota = f"Import moomoo (kod {simbol})"
-        if pecahan:
-            nota += f" — {pecahan}"
+        komisen = _angka(baris.get("Commission"))
+        yuran_platform = _angka(baris.get("Platform Fees"))
+        yuran_kliring = _angka(baris.get("Clearing Fee"))
+        duti_setem = _angka(baris.get("Stamp Duty"))
+        sst = _angka(baris.get("SST"))
+        jumlah_caj = _angka(baris.get("Total"))
+
+        # Baki selepas tolak 5 fee yang diketahui - serap sebarang fee lain
+        # yang mungkin disertakan dalam Total tapi tiada lajur khusus.
+        caj_lain = round(jumlah_caj - (komisen + yuran_platform + yuran_kliring + duti_setem + sst), 2)
+        if abs(caj_lain) < 0.005:
+            caj_lain = 0.0
 
         hasil.append(
             {
@@ -168,8 +164,14 @@ def _parse_order_history_cost(reader):
                 "jenis": jenis,
                 "kuantiti": kuantiti,
                 "harga_seunit": harga_seunit,
-                "caj": caj,
-                "nota": nota,
+                "komisen": round(komisen, 2),
+                "yuran_platform": round(yuran_platform, 2),
+                "yuran_kliring": round(yuran_kliring, 2),
+                "duti_setem": round(duti_setem, 2),
+                "sst": round(sst, 2),
+                "caj_lain": caj_lain,
+                "caj": round(jumlah_caj, 2),
+                "nota": f"Import moomoo (kod {simbol})",
             }
         )
 

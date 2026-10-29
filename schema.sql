@@ -5,7 +5,12 @@ CREATE TABLE IF NOT EXISTS transaksi (
     jenis TEXT NOT NULL CHECK (jenis IN ('BELI', 'JUAL')),
     kuantiti INTEGER NOT NULL CHECK (kuantiti > 0),
     harga_seunit REAL NOT NULL CHECK (harga_seunit >= 0),
-    caj REAL NOT NULL DEFAULT 0 CHECK (caj >= 0),
+    komisen REAL NOT NULL DEFAULT 0 CHECK (komisen >= 0),
+    yuran_platform REAL NOT NULL DEFAULT 0 CHECK (yuran_platform >= 0),
+    yuran_kliring REAL NOT NULL DEFAULT 0 CHECK (yuran_kliring >= 0),
+    duti_setem REAL NOT NULL DEFAULT 0 CHECK (duti_setem >= 0),
+    sst REAL NOT NULL DEFAULT 0 CHECK (sst >= 0),
+    caj_lain REAL NOT NULL DEFAULT 0 CHECK (caj_lain >= 0),
     nota TEXT,
     dicipta_pada TEXT NOT NULL DEFAULT (datetime('now'))
 );

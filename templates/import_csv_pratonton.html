@@ -16,6 +16,13 @@
         <th>Jenis</th>
         <th>Kuantiti</th>
         <th>Harga/Unit</th>
+        <th>Komisen</th>
+        <th>Yuran Platform</th>
+        <th>Yuran Kliring</th>
+        <th>Duti Setem</th>
+        <th>SST</th>
+        <th>Caj Lain</th>
+        <th>Jumlah Caj</th>
         <th>Nota</th>
       </tr>
     </thead>
@@ -29,7 +36,12 @@
           <input type="hidden" name="jenis_{{ loop.index0 }}" value="{{ b.jenis }}">
           <input type="hidden" name="kuantiti_{{ loop.index0 }}" value="{{ b.kuantiti }}">
           <input type="hidden" name="harga_{{ loop.index0 }}" value="{{ b.harga_seunit }}">
-          <input type="hidden" name="caj_{{ loop.index0 }}" value="{{ b.caj }}">
+          <input type="hidden" name="komisen_{{ loop.index0 }}" value="{{ b.komisen }}">
+          <input type="hidden" name="yuran_platform_{{ loop.index0 }}" value="{{ b.yuran_platform }}">
+          <input type="hidden" name="yuran_kliring_{{ loop.index0 }}" value="{{ b.yuran_kliring }}">
+          <input type="hidden" name="duti_setem_{{ loop.index0 }}" value="{{ b.duti_setem }}">
+          <input type="hidden" name="sst_{{ loop.index0 }}" value="{{ b.sst }}">
+          <input type="hidden" name="caj_lain_{{ loop.index0 }}" value="{{ b.caj_lain }}">
           <input type="hidden" name="nota_{{ loop.index0 }}" value="{{ b.nota }}">
         </td>
         <td>{{ b.tarikh }}</td>
@@ -37,6 +49,13 @@
         <td><span class="tag {{ 'tag-beli' if b.jenis == 'BELI' else 'tag-jual' }}">{{ b.jenis }}</span></td>
         <td>{{ "{:,}".format(b.kuantiti) }}</td>
         <td>{{ "%.4f"|format(b.harga_seunit) }}</td>
+        <td>{{ "%.2f"|format(b.komisen) }}</td>
+        <td>{{ "%.2f"|format(b.yuran_platform) }}</td>
+        <td>{{ "%.2f"|format(b.yuran_kliring) }}</td>
+        <td>{{ "%.2f"|format(b.duti_setem) }}</td>
+        <td>{{ "%.2f"|format(b.sst) }}</td>
+        <td>{{ "%.2f"|format(b.caj_lain) }}</td>
+        <td>{{ "%.2f"|format(b.caj) }}</td>
         <td>
           {{ b.nota }}
           {% if b.mungkin_pendua %}<span class="tag tag-pendua">MUNGKIN PENDUA</span>{% endif %}

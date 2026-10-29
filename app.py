@@ -34,11 +34,28 @@ def init_db():
             db.executescript(f.read())
 
 
+LAJUR_FEE = ["komisen", "yuran_platform", "yuran_kliring", "duti_setem", "sst", "caj_lain"]
+
+
+def _borang_fee(form, indeks=None):
+    """Baca lajur fee daripada borang (medan biasa atau "medan_{indeks}" utk pratonton import)."""
+    hasil = {}
+    for lajur in LAJUR_FEE:
+        nama_medan = f"{lajur}_{indeks}" if indeks is not None else lajur
+        hasil[lajur] = float(form.get(nama_medan) or 0)
+    return hasil
+
+
 def muat_semua_transaksi(db):
     rows = db.execute(
         "SELECT * FROM transaksi ORDER BY tarikh ASC, id ASC"
     ).fetchall()
-    return [dict(r) for r in rows]
+    hasil = []
+    for r in rows:
+        t = dict(r)
+        t["caj"] = round(sum(t[lajur] for lajur in LAJUR_FEE), 2)
+        hasil.append(t)
+    return hasil
 
 
 def julat_bulan_semasa():
@@ -130,16 +147,20 @@ def senarai_transaksi():
 @app.route("/transaksi/tambah", methods=["POST"])
 def tambah_transaksi():
     db = get_db()
+    fee = _borang_fee(request.form)
     db.execute(
-        """INSERT INTO transaksi (tarikh, kaunter, jenis, kuantiti, harga_seunit, caj, nota)
-           VALUES (?, ?, ?, ?, ?, ?, ?)""",
+        """INSERT INTO transaksi
+           (tarikh, kaunter, jenis, kuantiti, harga_seunit,
+            komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             request.form["tarikh"],
             request.form["kaunter"].strip().upper(),
             request.form["jenis"],
             int(request.form["kuantiti"]),
             float(request.form["harga_seunit"]),
-            float(request.form.get("caj") or 0),
+            fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
+            fee["duti_setem"], fee["sst"], fee["caj_lain"],
             request.form.get("nota", "").strip(),
         ),
     )
@@ -151,9 +172,12 @@ def tambah_transaksi():
 def edit_transaksi(transaksi_id):
     db = get_db()
     if request.method == "POST":
+        fee = _borang_fee(request.form)
         db.execute(
             """UPDATE transaksi
-               SET tarikh = ?, kaunter = ?, jenis = ?, kuantiti = ?, harga_seunit = ?, caj = ?, nota = ?
+               SET tarikh = ?, kaunter = ?, jenis = ?, kuantiti = ?, harga_seunit = ?,
+                   komisen = ?, yuran_platform = ?, yuran_kliring = ?, duti_setem = ?, sst = ?, caj_lain = ?,
+                   nota = ?
                WHERE id = ?""",
             (
                 request.form["tarikh"],
@@ -161,7 +185,8 @@ def edit_transaksi(transaksi_id):
                 request.form["jenis"],
                 int(request.form["kuantiti"]),
                 float(request.form["harga_seunit"]),
-                float(request.form.get("caj") or 0),
+                fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
+                fee["duti_setem"], fee["sst"], fee["caj_lain"],
                 request.form.get("nota", "").strip(),
                 transaksi_id,
             ),
@@ -299,14 +324,20 @@ def import_csv_sahkan():
         jenis = request.form.get(f"jenis_{i}")
         kuantiti = request.form.get(f"kuantiti_{i}")
         harga = request.form.get(f"harga_{i}")
-        caj = request.form.get(f"caj_{i}", "0")
         nota = request.form.get(f"nota_{i}", "")
         if not (tarikh and kaunter and jenis and kuantiti and harga):
             continue
+        fee = _borang_fee(request.form, indeks=i)
         db.execute(
-            """INSERT INTO transaksi (tarikh, kaunter, jenis, kuantiti, harga_seunit, caj, nota)
-               VALUES (?, ?, ?, ?, ?, ?, ?)""",
-            (tarikh, kaunter.strip().upper(), jenis, int(kuantiti), float(harga), float(caj or 0), nota),
+            """INSERT INTO transaksi
+               (tarikh, kaunter, jenis, kuantiti, harga_seunit,
+                komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                tarikh, kaunter.strip().upper(), jenis, int(kuantiti), float(harga),
+                fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
+                fee["duti_setem"], fee["sst"], fee["caj_lain"], nota,
+            ),
         )
         jumlah += 1
     db.commit()
