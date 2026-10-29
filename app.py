@@ -190,6 +190,16 @@ def senarai_transaksi():
 PASARAN_MATA_WANG_LALAI = {"MY": "MYR", "US": "USD"}
 
 
+def _sahkan_kuantiti(pasaran, kuantiti):
+    """Bursa Malaysia (MY) berdagang dalam unit bulat sahaja; pasaran lain (cth US)
+    boleh berdagang pecahan (saham serpihan) - bundarkan hanya untuk pasaran MY,
+    walaupun borang/pratonton di hujung pelanggan sudah menyekat ini."""
+    kuantiti = float(kuantiti)
+    if pasaran == "MY":
+        kuantiti = round(kuantiti)
+    return kuantiti
+
+
 @app.route("/transaksi/tambah", methods=["POST"])
 def tambah_transaksi():
     db = get_db()
@@ -208,7 +218,7 @@ def tambah_transaksi():
             mata_wang,
             request.form["kaunter"].strip().upper(),
             request.form["jenis"],
-            float(request.form["kuantiti"]),
+            _sahkan_kuantiti(pasaran, request.form["kuantiti"]),
             float(request.form["harga_seunit"]),
             fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
             fee["duti_setem"], fee["sst"], fee["caj_lain"],
@@ -240,7 +250,7 @@ def edit_transaksi(transaksi_id):
                 mata_wang,
                 request.form["kaunter"].strip().upper(),
                 request.form["jenis"],
-                float(request.form["kuantiti"]),
+                _sahkan_kuantiti(pasaran, request.form["kuantiti"]),
                 float(request.form["harga_seunit"]),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
                 fee["duti_setem"], fee["sst"], fee["caj_lain"],
@@ -418,7 +428,8 @@ def import_csv_sahkan():
                 komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
-                tarikh, masa, pasaran, mata_wang, kaunter.strip().upper(), jenis, float(kuantiti), float(harga),
+                tarikh, masa, pasaran, mata_wang, kaunter.strip().upper(), jenis,
+                _sahkan_kuantiti(pasaran, kuantiti), float(harga),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
                 fee["duti_setem"], fee["sst"], fee["caj_lain"], nota,
             ),

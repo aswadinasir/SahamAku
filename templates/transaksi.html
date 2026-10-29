@@ -18,7 +18,7 @@
         <input type="time" name="masa" step="1">
       </label>
       <label>Pasaran
-        <select name="pasaran">
+        <select name="pasaran" id="f-pasaran">
           <option value="MY">MY (RM)</option>
           <option value="US">US (USD)</option>
         </select>
@@ -35,7 +35,7 @@
     </div>
     <div class="borang-baris">
       <label>Kuantiti (unit)
-        <input type="number" name="kuantiti" min="0.000001" step="any" required>
+        <input type="number" name="kuantiti" id="f-kuantiti" min="1" step="1" required>
       </label>
       <label>Harga / Unit (ikut pasaran)
         <input type="number" name="harga_seunit" min="0" step="0.0001" required>
@@ -69,10 +69,32 @@
       </label>
     </div>
     <p class="catatan-kecil" style="margin:0;">Isi Masa jika ada lebih satu transaksi kaunter sama pada tarikh sama (cth: beli & jual hari sama) — ini pastikan turutan BELI/JUAL dikira betul.</p>
+    <p class="catatan-kecil" id="kuantiti-catatan" style="margin:0;">Pasaran MY: kuantiti mesti unit bulat. Tukar ke US untuk benarkan kuantiti pecahan (saham serpihan).</p>
     <button type="submit" class="btn btn-utama">Simpan Transaksi</button>
   </form>
   <p class="catatan-kecil">Ada penyata moomoo? <a href="{{ url_for('import_csv_borang') }}">Import dari fail CSV</a> dan tambah banyak transaksi sekali gus.</p>
 </section>
+
+<script>
+  (function () {
+    var selPasaran = document.getElementById("f-pasaran");
+    var inputKuantiti = document.getElementById("f-kuantiti");
+    var catatan = document.getElementById("kuantiti-catatan");
+    function kemaskini() {
+      if (selPasaran.value === "MY") {
+        inputKuantiti.step = "1";
+        inputKuantiti.min = "1";
+        catatan.textContent = "Pasaran MY: kuantiti mesti unit bulat. Tukar ke US untuk benarkan kuantiti pecahan (saham serpihan).";
+      } else {
+        inputKuantiti.step = "any";
+        inputKuantiti.min = "0.000001";
+        catatan.textContent = "Pasaran US: kuantiti boleh pecahan (cth 0.0132 unit untuk saham serpihan).";
+      }
+    }
+    selPasaran.addEventListener("change", kemaskini);
+    kemaskini();
+  })();
+</script>
 
 <h2>Senarai Transaksi</h2>
 <form method="get" action="{{ url_for('senarai_transaksi') }}" class="borang borang-tapis">
