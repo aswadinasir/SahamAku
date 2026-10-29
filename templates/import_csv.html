@@ -5,19 +5,23 @@
 
 <section class="kad">
   <p>
-    Muat naik fail CSV <strong>History Transactions</strong> yang dieksport terus dari apl/portal moomoo
-    (lajur: Symbol, Name, Side, Fill Qty, Fill Price, Fill Time, dsb). Sistem akan:
+    Muat naik fail CSV eksport dari apl/portal moomoo. Sistem sokong <strong>dua</strong> format
+    (dikesan automatik daripada header fail):
   </p>
   <ul>
+    <li><strong>Order History (Cost)</strong> — ada caj/komisen sebenar (lajur Total). Disyorkan,
+      sebab caj betul terus diisi. Hanya baris berstatus <strong>Filled</strong> diambil;
+      Cancelled/Failed diabaikan automatik.</li>
+    <li><strong>History Transactions</strong> — format ringkas, tiada pecahan caj (caj diset RM0,
+      edit transaksi lepas import jika perlu tambah caj).</li>
+  </ul>
+  <p>Untuk kedua-dua format, sistem akan:</p>
+  <ul>
     <li>Tukar <em>Buy</em> → BELI dan <em>Sell</em> → JUAL secara automatik</li>
-    <li>Ambil tarikh daripada lajur Fill Time, dan nama kaunter daripada lajur Name</li>
-    <li>Langkau baris yang kaunter &amp; masa isi (Fill Time) sama persis (pendua dalam fail)</li>
+    <li>Ambil tarikh daripada masa pesanan, dan nama kaunter daripada lajur Name</li>
+    <li>Langkau baris yang kaunter &amp; masa sama persis (pendua dalam fail)</li>
     <li>Tandakan baris yang nampak sama dengan transaksi sedia ada dalam sistem supaya tidak import dua kali</li>
   </ul>
-  <p class="catatan-kecil">
-    Nota: fail CSV moomoo tidak sertakan caj/brokeraj berasingan, jadi caj akan diset RM0 semasa import.
-    Edit transaksi selepas import jika anda nak tambah caj sebenar.
-  </p>
 
   {% if ralat %}
   <p class="catatan-ralat">{{ ralat }}</p>
