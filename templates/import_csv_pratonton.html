@@ -4,6 +4,7 @@
 <h1>Pratonton Import</h1>
 <p>Semak senarai di bawah. Nyahtanda mana-mana baris yang anda tak nak import, kemudian klik "Sahkan Import".</p>
 <p class="catatan-kecil">Baris bertanda <span class="tag tag-pendua">MUNGKIN PENDUA</span> nampak sama dengan transaksi sedia ada (tarikh, kaunter, jenis, kuantiti &amp; harga sama) — tidak ditanda pilih secara automatik.</p>
+<p class="catatan-kecil">Baris bertanda <span class="tag tag-amaran">⚠ SEMAK TARIKH</span> ialah pesanan jenis <strong>Stop/Trigger</strong> — tarikhnya ialah masa pesanan <em>diletak</em>, bukan semestinya masa ia <em>dipenuhi</em>. Semak &amp; betulkan tarikh terus di jadual bawah jika perlu (klik medan tarikh).</p>
 
 <form method="post" action="{{ url_for('import_csv_sahkan') }}">
   <div class="jadual-bungkus">
@@ -31,7 +32,6 @@
       <tr>
         <td>
           <input type="checkbox" name="pilih" value="{{ loop.index0 }}" {{ "" if b.mungkin_pendua else "checked" }}>
-          <input type="hidden" name="tarikh_{{ loop.index0 }}" value="{{ b.tarikh }}">
           <input type="hidden" name="kaunter_{{ loop.index0 }}" value="{{ b.kaunter }}">
           <input type="hidden" name="jenis_{{ loop.index0 }}" value="{{ b.jenis }}">
           <input type="hidden" name="kuantiti_{{ loop.index0 }}" value="{{ b.kuantiti }}">
@@ -44,7 +44,10 @@
           <input type="hidden" name="caj_lain_{{ loop.index0 }}" value="{{ b.caj_lain }}">
           <input type="hidden" name="nota_{{ loop.index0 }}" value="{{ b.nota }}">
         </td>
-        <td>{{ b.tarikh }}</td>
+        <td>
+          <input type="date" name="tarikh_{{ loop.index0 }}" value="{{ b.tarikh }}" style="width:9.5rem">
+          {% if b.tarikh_mungkin_tak_tepat %}<span class="tag tag-amaran">⚠ SEMAK TARIKH</span>{% endif %}
+        </td>
         <td>{{ b.kaunter }}</td>
         <td><span class="tag {{ 'tag-beli' if b.jenis == 'BELI' else 'tag-jual' }}">{{ b.jenis }}</span></td>
         <td>{{ "{:,}".format(b.kuantiti) }}</td>

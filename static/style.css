@@ -239,6 +239,10 @@ section.kad {
   background: #d98c00;
 }
 
+.tag-amaran {
+  background: #c0392b;
+}
+
 .borang-tindakan-import {
   display: flex;
   gap: 0.6rem;

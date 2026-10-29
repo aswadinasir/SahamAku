@@ -79,6 +79,7 @@ def _parse_history_transactions(reader):
                 "caj_lain": 0.0,
                 "caj": 0.0,
                 "nota": f"Import moomoo (kod {simbol})",
+                "tarikh_mungkin_tak_tepat": False,
             }
         )
 
@@ -113,6 +114,7 @@ def _parse_order_history_cost(reader):
         sisi = (baris.get("Side") or "").strip().lower()
         masa_order = (baris.get("Order Time") or "").strip()
         diisi = (baris.get("Filled@Avg Price") or "").strip()
+        jenis_pesanan = (baris.get("Order Type") or "").strip()
 
         if not simbol or not sisi or not masa_order or "@" not in diisi:
             continue
@@ -172,6 +174,10 @@ def _parse_order_history_cost(reader):
                 "caj_lain": caj_lain,
                 "caj": round(jumlah_caj, 2),
                 "nota": f"Import moomoo (kod {simbol})",
+                # Pesanan Stop/Trigger: "Order Time" ialah masa pesanan DILETAK,
+                # bukan masa ia dipenuhi - tarikh di atas mungkin tak tepat.
+                # Papar amaran di pratonton supaya pengguna semak/betulkan manual.
+                "tarikh_mungkin_tak_tepat": "stop" in jenis_pesanan.lower(),
             }
         )
 
