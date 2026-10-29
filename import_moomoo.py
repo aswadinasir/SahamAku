@@ -79,6 +79,33 @@ def _parse_history_transactions(reader):
     return hasil
 
 
+def _angka(teks):
+    """Tukar string lajur CSV (boleh kosong/None) kepada float, lalai 0.0."""
+    teks = (teks or "").replace(",", "").strip()
+    if not teks:
+        return 0.0
+    try:
+        return float(teks)
+    except ValueError:
+        return 0.0
+
+
+def _pecahan_fee(baris):
+    """Bina teks pecahan setiap fee (Komisen, Yuran Platform, Kliring,
+    Duti Setem, SST) daripada satu baris CSV Order History (Cost).
+    Fee yang bernilai 0 tidak disenaraikan.
+    """
+    fee = [
+        ("Komisen", _angka(baris.get("Commission"))),
+        ("Yuran Platform", _angka(baris.get("Platform Fees"))),
+        ("Yuran Kliring", _angka(baris.get("Clearing Fee"))),
+        ("Duti Setem", _angka(baris.get("Stamp Duty"))),
+        ("SST", _angka(baris.get("SST"))),
+    ]
+    bahagian = [f"{nama} RM{nilai:.2f}" for nama, nilai in fee if nilai]
+    return ", ".join(bahagian)
+
+
 def _parse_order_history_cost(reader):
     """Format baharu: Status + Filled@Avg Price + Total (caj sebenar).
     Hanya baris Status == "Filled" diambil.
@@ -129,6 +156,11 @@ def _parse_order_history_cost(reader):
         if kuantiti <= 0:
             continue
 
+        pecahan = _pecahan_fee(baris)
+        nota = f"Import moomoo (kod {simbol})"
+        if pecahan:
+            nota += f" — {pecahan}"
+
         hasil.append(
             {
                 "tarikh": tarikh,
@@ -137,7 +169,7 @@ def _parse_order_history_cost(reader):
                 "kuantiti": kuantiti,
                 "harga_seunit": harga_seunit,
                 "caj": caj,
-                "nota": f"Import moomoo (kod {simbol})",
+                "nota": nota,
             }
         )
 
