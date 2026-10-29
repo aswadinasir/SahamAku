@@ -21,11 +21,15 @@ from datetime import datetime
 _POLA_ZON_MASA = re.compile(r"\s+[A-Za-z]{2,5}$")
 
 
+def parse_datetime_moomoo(teks):
+    """"Oct 28, 2026 16:12:54 MYT" -> objek datetime (tanpa zon masa)."""
+    tanpa_zon = _POLA_ZON_MASA.sub("", teks.strip())
+    return datetime.strptime(tanpa_zon, "%b %d, %Y %H:%M:%S")
+
+
 def parse_fill_time(teks):
     """"Oct 28, 2026 16:12:54 MYT" -> "2026-10-28" (tarikh sahaja)."""
-    tanpa_zon = _POLA_ZON_MASA.sub("", teks.strip())
-    dt = datetime.strptime(tanpa_zon, "%b %d, %Y %H:%M:%S")
-    return dt.date().isoformat()
+    return parse_datetime_moomoo(teks).date().isoformat()
 
 
 def _parse_history_transactions(reader):
@@ -58,7 +62,7 @@ def _parse_history_transactions(reader):
             continue
 
         try:
-            tarikh = parse_fill_time(masa_isi)
+            dt = parse_datetime_moomoo(masa_isi)
             kuantiti = int(round(float(qty_mentah)))
             harga_seunit = float(harga_mentah)
         except (ValueError, TypeError):
@@ -66,7 +70,8 @@ def _parse_history_transactions(reader):
 
         hasil.append(
             {
-                "tarikh": tarikh,
+                "tarikh": dt.date().isoformat(),
+                "masa": dt.time().isoformat(),
                 "kaunter": kaunter,
                 "jenis": jenis,
                 "kuantiti": kuantiti,
@@ -137,7 +142,7 @@ def _parse_order_history_cost(reader):
         harga_mentah = harga_mentah.replace(",", "").strip()
 
         try:
-            tarikh = parse_fill_time(masa_order)
+            dt = parse_datetime_moomoo(masa_order)
             kuantiti = int(round(float(qty_mentah)))
             harga_seunit = float(harga_mentah)
         except (ValueError, TypeError):
@@ -161,7 +166,8 @@ def _parse_order_history_cost(reader):
 
         hasil.append(
             {
-                "tarikh": tarikh,
+                "tarikh": dt.date().isoformat(),
+                "masa": dt.time().isoformat(),
                 "kaunter": kaunter,
                 "jenis": jenis,
                 "kuantiti": kuantiti,
@@ -198,5 +204,5 @@ def parse_moomoo_csv(teks_csv):
     else:
         hasil = _parse_history_transactions(reader)
 
-    hasil.sort(key=lambda r: (r["tarikh"], r["kaunter"]))
+    hasil.sort(key=lambda r: (r["tarikh"], r["masa"], r["kaunter"]))
     return hasil

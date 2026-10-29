@@ -48,7 +48,7 @@ def _borang_fee(form, indeks=None):
 
 def muat_semua_transaksi(db):
     rows = db.execute(
-        "SELECT * FROM transaksi ORDER BY tarikh ASC, id ASC"
+        "SELECT * FROM transaksi ORDER BY tarikh ASC, masa ASC, id ASC"
     ).fetchall()
     hasil = []
     for r in rows:
@@ -129,7 +129,7 @@ def senarai_transaksi():
     if f_kaunter:
         ledger_tapis = [t for t in ledger_tapis if t["kaunter"] == f_kaunter]
 
-    ledger_tapis.sort(key=lambda t: (t["tarikh"], t["id"]), reverse=True)
+    ledger_tapis.sort(key=lambda t: (t["tarikh"], t["masa"], t["id"]), reverse=True)
     diimport = request.args.get("diimport", type=int)
     return render_template(
         "transaksi.html",
@@ -150,11 +150,12 @@ def tambah_transaksi():
     fee = _borang_fee(request.form)
     db.execute(
         """INSERT INTO transaksi
-           (tarikh, kaunter, jenis, kuantiti, harga_seunit,
+           (tarikh, masa, kaunter, jenis, kuantiti, harga_seunit,
             komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             request.form["tarikh"],
+            request.form.get("masa", "").strip(),
             request.form["kaunter"].strip().upper(),
             request.form["jenis"],
             int(request.form["kuantiti"]),
@@ -175,12 +176,13 @@ def edit_transaksi(transaksi_id):
         fee = _borang_fee(request.form)
         db.execute(
             """UPDATE transaksi
-               SET tarikh = ?, kaunter = ?, jenis = ?, kuantiti = ?, harga_seunit = ?,
+               SET tarikh = ?, masa = ?, kaunter = ?, jenis = ?, kuantiti = ?, harga_seunit = ?,
                    komisen = ?, yuran_platform = ?, yuran_kliring = ?, duti_setem = ?, sst = ?, caj_lain = ?,
                    nota = ?
                WHERE id = ?""",
             (
                 request.form["tarikh"],
+                request.form.get("masa", "").strip(),
                 request.form["kaunter"].strip().upper(),
                 request.form["jenis"],
                 int(request.form["kuantiti"]),
@@ -346,17 +348,18 @@ def import_csv_sahkan():
         jenis = request.form.get(f"jenis_{i}")
         kuantiti = request.form.get(f"kuantiti_{i}")
         harga = request.form.get(f"harga_{i}")
+        masa = request.form.get(f"masa_{i}", "")
         nota = request.form.get(f"nota_{i}", "")
         if not (tarikh and kaunter and jenis and kuantiti and harga):
             continue
         fee = _borang_fee(request.form, indeks=i)
         db.execute(
             """INSERT INTO transaksi
-               (tarikh, kaunter, jenis, kuantiti, harga_seunit,
+               (tarikh, masa, kaunter, jenis, kuantiti, harga_seunit,
                 komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
-                tarikh, kaunter.strip().upper(), jenis, int(kuantiti), float(harga),
+                tarikh, masa, kaunter.strip().upper(), jenis, int(kuantiti), float(harga),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
                 fee["duti_setem"], fee["sst"], fee["caj_lain"], nota,
             ),
@@ -372,7 +375,7 @@ def laporan_untung_rugi():
     transaksi = muat_semua_transaksi(db)
     ledger, _ = kira_ledger(transaksi)
     jualan = [b for b in ledger if b["jenis"] == "JUAL"]
-    jualan.sort(key=lambda t: (t["tarikh"], t["id"]), reverse=True)
+    jualan.sort(key=lambda t: (t["tarikh"], t["masa"], t["id"]), reverse=True)
 
     for b in jualan:
         kos_asas = b["kos_purata_sebelum"] * b["kuantiti"]

@@ -14,6 +14,9 @@
       <label>Tarikh
         <input type="date" name="tarikh" value="{{ hari_ini }}" required>
       </label>
+      <label>Masa (pilihan)
+        <input type="time" name="masa" step="1">
+      </label>
       <label>Kaunter
         <input type="text" name="kaunter" placeholder="Cth: MAYBANK" required>
       </label>
@@ -59,6 +62,7 @@
         <input type="text" name="nota" placeholder="Nota tambahan">
       </label>
     </div>
+    <p class="catatan-kecil" style="margin:0;">Isi Masa jika ada lebih satu transaksi kaunter sama pada tarikh sama (cth: beli & jual hari sama) — ini pastikan turutan BELI/JUAL dikira betul.</p>
     <button type="submit" class="btn btn-utama">Simpan Transaksi</button>
   </form>
   <p class="catatan-kecil">Ada penyata moomoo? <a href="{{ url_for('import_csv_borang') }}">Import dari fail CSV</a> dan tambah banyak transaksi sekali gus.</p>

@@ -5,6 +5,7 @@
 <p>Semak senarai di bawah. Nyahtanda mana-mana baris yang anda tak nak import, kemudian klik "Sahkan Import".</p>
 <p class="catatan-kecil">Baris bertanda <span class="tag tag-pendua">MUNGKIN PENDUA</span> nampak sama dengan transaksi sedia ada (tarikh, kaunter, jenis, kuantiti &amp; harga sama) — tidak ditanda pilih secara automatik.</p>
 <p class="catatan-kecil">Baris bertanda <span class="tag tag-amaran">⚠ SEMAK TARIKH</span> ialah pesanan jenis <strong>Stop/Trigger</strong> — tarikhnya ialah masa pesanan <em>diletak</em>, bukan semestinya masa ia <em>dipenuhi</em>. Semak &amp; betulkan tarikh terus di jadual bawah jika perlu (klik medan tarikh).</p>
+<p class="catatan-kecil">Lajur <strong>Masa</strong> digunakan untuk tentukan turutan BELI/JUAL yang betul bila ada lebih satu transaksi kaunter sama pada tarikh sama — tak perlu diubah melainkan anda tahu ia tak tepat.</p>
 
 <form method="post" action="{{ url_for('import_csv_sahkan') }}">
   <div class="jadual-bungkus">
@@ -13,6 +14,7 @@
       <tr>
         <th></th>
         <th>Tarikh</th>
+        <th>Masa</th>
         <th>Kaunter</th>
         <th>Jenis</th>
         <th>Kuantiti</th>
@@ -48,6 +50,7 @@
           <input type="date" name="tarikh_{{ loop.index0 }}" value="{{ b.tarikh }}" style="width:9.5rem">
           {% if b.tarikh_mungkin_tak_tepat %}<span class="tag tag-amaran">⚠ SEMAK TARIKH</span>{% endif %}
         </td>
+        <td><input type="time" name="masa_{{ loop.index0 }}" step="1" value="{{ b.masa }}" style="width:7rem"></td>
         <td>{{ b.kaunter }}</td>
         <td><span class="tag {{ 'tag-beli' if b.jenis == 'BELI' else 'tag-jual' }}">{{ b.jenis }}</span></td>
         <td>{{ "{:,}".format(b.kuantiti) }}</td>

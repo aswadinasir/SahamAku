@@ -9,6 +9,9 @@
       <label>Tarikh
         <input type="date" name="tarikh" value="{{ t.tarikh }}" required>
       </label>
+      <label>Masa (pilihan)
+        <input type="time" name="masa" step="1" value="{{ t.masa or '' }}">
+      </label>
       <label>Kaunter
         <input type="text" name="kaunter" value="{{ t.kaunter }}" required>
       </label>

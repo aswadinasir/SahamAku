@@ -1,6 +1,7 @@
 CREATE TABLE IF NOT EXISTS transaksi (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     tarikh TEXT NOT NULL,
+    masa TEXT NOT NULL DEFAULT '',
     kaunter TEXT NOT NULL,
     jenis TEXT NOT NULL CHECK (jenis IN ('BELI', 'JUAL')),
     kuantiti INTEGER NOT NULL CHECK (kuantiti > 0),
