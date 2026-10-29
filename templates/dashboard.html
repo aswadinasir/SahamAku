@@ -18,7 +18,23 @@
       RM {{ "%.2f"|format(jumlah_untung_rugi) }}
     </span>
   </div>
+  <div class="kad">
+    <span class="kad-label">Jumlah Modal Bersih (Dimasukkan)</span>
+    <span class="kad-nilai {{ 'positif' if jumlah_modal >= 0 else 'negatif' }}">
+      RM {{ "%.2f"|format(jumlah_modal) }}
+    </span>
+  </div>
+  <div class="kad">
+    <span class="kad-label">Anggaran Baki Tunai</span>
+    <span class="kad-nilai {{ 'positif' if baki_tunai >= 0 else 'negatif' }}">
+      RM {{ "%.2f"|format(baki_tunai) }}
+    </span>
+  </div>
 </div>
+<p class="catatan-kecil" style="margin-top:-1rem;margin-bottom:1.5rem;">
+  Anggaran Baki Tunai = Jumlah Modal Bersih − perbelanjaan bersih beli/jual saham. Kemaskini di halaman
+  <a href="{{ url_for('senarai_modal') }}">Modal</a> setiap kali anda masuk/keluarkan wang dari akaun pelaburan.
+</p>
 
 <h2>Baki Saham Mengikut Kaunter</h2>
 {% if portfolio %}

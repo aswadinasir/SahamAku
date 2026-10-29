@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Import CSV - SahamAku{% endblock %}
+{% block content %}
+<h1>Import Transaksi dari CSV moomoo</h1>
+
+<section class="kad">
+  <p>
+    Muat naik fail CSV <strong>History Transactions</strong> yang dieksport terus dari apl/portal moomoo
+    (lajur: Symbol, Name, Side, Fill Qty, Fill Price, Fill Time, dsb). Sistem akan:
+  </p>
+  <ul>
+    <li>Tukar <em>Buy</em> → BELI dan <em>Sell</em> → JUAL secara automatik</li>
+    <li>Ambil tarikh daripada lajur Fill Time, dan nama kaunter daripada lajur Name</li>
+    <li>Langkau baris yang kaunter &amp; masa isi (Fill Time) sama persis (pendua dalam fail)</li>
+    <li>Tandakan baris yang nampak sama dengan transaksi sedia ada dalam sistem supaya tidak import dua kali</li>
+  </ul>
+  <p class="catatan-kecil">
+    Nota: fail CSV moomoo tidak sertakan caj/brokeraj berasingan, jadi caj akan diset RM0 semasa import.
+    Edit transaksi selepas import jika anda nak tambah caj sebenar.
+  </p>
+
+  {% if ralat %}
+  <p class="catatan-ralat">{{ ralat }}</p>
+  {% endif %}
+
+  <form method="post" action="{{ url_for('import_csv_pratonton') }}" enctype="multipart/form-data" class="borang">
+    <label>Fail CSV
+      <input type="file" name="fail_csv" accept=".csv" required>
+    </label>
+    <button type="submit" class="btn btn-utama">Pratonton Import</button>
+  </form>
+</section>
+{% endblock %}

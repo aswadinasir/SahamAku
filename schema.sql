@@ -12,3 +12,14 @@ CREATE TABLE IF NOT EXISTS transaksi (
 
 CREATE INDEX IF NOT EXISTS idx_transaksi_kaunter ON transaksi (kaunter);
 CREATE INDEX IF NOT EXISTS idx_transaksi_tarikh ON transaksi (tarikh);
+
+CREATE TABLE IF NOT EXISTS modal (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    tarikh TEXT NOT NULL,
+    jenis TEXT NOT NULL CHECK (jenis IN ('MASUK', 'KELUAR')),
+    jumlah REAL NOT NULL CHECK (jumlah > 0),
+    nota TEXT,
+    dicipta_pada TEXT NOT NULL DEFAULT (datetime('now'))
+);
+
+CREATE INDEX IF NOT EXISTS idx_modal_tarikh ON modal (tarikh);

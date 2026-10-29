@@ -199,3 +199,35 @@ h1 { margin-top: 0; }
 section.kad {
   margin-bottom: 1.5rem;
 }
+
+.notis-jaya {
+  background: #e4f5ea;
+  color: #1c8a4c;
+  border: 1px solid #bfe6cd;
+  border-radius: 8px;
+  padding: 0.7rem 1rem;
+  font-weight: 600;
+}
+
+.catatan-kecil {
+  color: #666;
+  font-size: 0.85rem;
+}
+
+.tag-pendua {
+  background: #d98c00;
+}
+
+.borang-tindakan-import {
+  display: flex;
+  gap: 0.6rem;
+  margin-top: 1rem;
+}
+
+section.kad ul {
+  margin: 0.4rem 0 0.8rem;
+  padding-left: 1.2rem;
+}
+section.kad li {
+  margin-bottom: 0.3rem;
+}

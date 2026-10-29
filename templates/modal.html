@@ -1,0 +1,75 @@
+{% extends "base.html" %}
+{% block title %}Modal - SahamAku{% endblock %}
+{% block content %}
+<h1>Modal Pelaburan</h1>
+<p class="catatan-kecil">
+  Rekod wang yang dimasukkan (deposit) atau dikeluarkan (withdraw) daripada akaun pelaburan anda.
+  Ini digunakan untuk kira anggaran baki tunai di Dashboard.
+</p>
+
+<div class="grid-ringkasan" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
+  <div class="kad">
+    <span class="kad-label">Jumlah Modal Bersih</span>
+    <span class="kad-nilai {{ 'positif' if jumlah_modal >= 0 else 'negatif' }}">RM {{ "%.2f"|format(jumlah_modal) }}</span>
+  </div>
+</div>
+
+<section class="kad">
+  <h2>Tambah Rekod Modal</h2>
+  <form method="post" action="{{ url_for('tambah_modal') }}" class="borang">
+    <div class="borang-baris">
+      <label>Tarikh
+        <input type="date" name="tarikh" value="{{ hari_ini }}" required>
+      </label>
+      <label>Jenis
+        <select name="jenis" required>
+          <option value="MASUK">MASUK (deposit)</option>
+          <option value="KELUAR">KELUAR (withdraw)</option>
+        </select>
+      </label>
+      <label>Jumlah (RM)
+        <input type="number" name="jumlah" min="0.01" step="0.01" required>
+      </label>
+    </div>
+    <div class="borang-baris">
+      <label class="lebar-penuh">Nota (pilihan)
+        <input type="text" name="nota" placeholder="Cth: Deposit awal, pindahan bank">
+      </label>
+    </div>
+    <button type="submit" class="btn btn-utama">Simpan</button>
+  </form>
+</section>
+
+<h2>Senarai Rekod Modal</h2>
+{% if modal %}
+<table class="jadual">
+  <thead>
+    <tr>
+      <th>Tarikh</th>
+      <th>Jenis</th>
+      <th>Jumlah (RM)</th>
+      <th>Nota</th>
+      <th></th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for m in modal %}
+    <tr>
+      <td>{{ m.tarikh }}</td>
+      <td><span class="tag {{ 'tag-beli' if m.jenis == 'MASUK' else 'tag-jual' }}">{{ m.jenis }}</span></td>
+      <td>{{ "%.2f"|format(m.jumlah) }}</td>
+      <td>{{ m.nota or "" }}</td>
+      <td class="tindakan">
+        <a href="{{ url_for('edit_modal', modal_id=m.id) }}">Edit</a>
+        <form method="post" action="{{ url_for('padam_modal', modal_id=m.id) }}" onsubmit="return confirm('Padam rekod modal ini?');">
+          <button type="submit" class="btn-link">Padam</button>
+        </form>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% else %}
+<p class="kosong">Tiada rekod modal lagi.</p>
+{% endif %}
+{% endblock %}

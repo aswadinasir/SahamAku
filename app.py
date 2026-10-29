@@ -4,7 +4,8 @@ from datetime import date
 
 from flask import Flask, g, redirect, render_template, request, url_for
 
-from portfolio import kira_ledger
+from import_moomoo import parse_moomoo_csv
+from portfolio import kira_ledger, kira_tunai
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "sahamaku.db")
@@ -40,11 +41,20 @@ def muat_semua_transaksi(db):
     return [dict(r) for r in rows]
 
 
+def muat_semua_modal(db):
+    rows = db.execute(
+        "SELECT * FROM modal ORDER BY tarikh ASC, id ASC"
+    ).fetchall()
+    return [dict(r) for r in rows]
+
+
 @app.route("/")
 def dashboard():
     db = get_db()
     transaksi = muat_semua_transaksi(db)
+    modal = muat_semua_modal(db)
     ledger, portfolio = kira_ledger(transaksi)
+    tunai = kira_tunai(transaksi, modal)
 
     jumlah_untung_rugi = sum(
         b["untung_rugi"] for b in ledger if b["untung_rugi"] is not None
@@ -62,6 +72,8 @@ def dashboard():
         jumlah_untung_rugi=round(jumlah_untung_rugi, 2),
         jumlah_nilai_kos=round(jumlah_nilai_kos, 2),
         bilangan_kaunter=len(portfolio),
+        jumlah_modal=tunai["jumlah_modal"],
+        baki_tunai=tunai["baki_tunai"],
     )
 
 
@@ -71,8 +83,12 @@ def senarai_transaksi():
     transaksi = muat_semua_transaksi(db)
     ledger, _ = kira_ledger(transaksi)
     ledger.sort(key=lambda t: (t["tarikh"], t["id"]), reverse=True)
+    diimport = request.args.get("diimport", type=int)
     return render_template(
-        "transaksi.html", ledger=ledger, hari_ini=date.today().isoformat()
+        "transaksi.html",
+        ledger=ledger,
+        hari_ini=date.today().isoformat(),
+        diimport=diimport,
     )
 
 
@@ -128,6 +144,129 @@ def padam_transaksi(transaksi_id):
     db.execute("DELETE FROM transaksi WHERE id = ?", (transaksi_id,))
     db.commit()
     return redirect(url_for("senarai_transaksi"))
+
+
+@app.route("/modal")
+def senarai_modal():
+    db = get_db()
+    modal = muat_semua_modal(db)
+    modal.sort(key=lambda m: (m["tarikh"], m["id"]), reverse=True)
+    jumlah_modal = sum(
+        m["jumlah"] if m["jenis"] == "MASUK" else -m["jumlah"] for m in modal
+    )
+    return render_template(
+        "modal.html",
+        modal=modal,
+        jumlah_modal=round(jumlah_modal, 2),
+        hari_ini=date.today().isoformat(),
+    )
+
+
+@app.route("/modal/tambah", methods=["POST"])
+def tambah_modal():
+    db = get_db()
+    db.execute(
+        """INSERT INTO modal (tarikh, jenis, jumlah, nota) VALUES (?, ?, ?, ?)""",
+        (
+            request.form["tarikh"],
+            request.form["jenis"],
+            float(request.form["jumlah"]),
+            request.form.get("nota", "").strip(),
+        ),
+    )
+    db.commit()
+    return redirect(url_for("senarai_modal"))
+
+
+@app.route("/modal/<int:modal_id>/edit", methods=["GET", "POST"])
+def edit_modal(modal_id):
+    db = get_db()
+    if request.method == "POST":
+        db.execute(
+            """UPDATE modal SET tarikh = ?, jenis = ?, jumlah = ?, nota = ? WHERE id = ?""",
+            (
+                request.form["tarikh"],
+                request.form["jenis"],
+                float(request.form["jumlah"]),
+                request.form.get("nota", "").strip(),
+                modal_id,
+            ),
+        )
+        db.commit()
+        return redirect(url_for("senarai_modal"))
+
+    m = db.execute("SELECT * FROM modal WHERE id = ?", (modal_id,)).fetchone()
+    return render_template("edit_modal.html", m=m)
+
+
+@app.route("/modal/<int:modal_id>/padam", methods=["POST"])
+def padam_modal(modal_id):
+    db = get_db()
+    db.execute("DELETE FROM modal WHERE id = ?", (modal_id,))
+    db.commit()
+    return redirect(url_for("senarai_modal"))
+
+
+@app.route("/transaksi/import", methods=["GET"])
+def import_csv_borang():
+    return render_template("import_csv.html")
+
+
+@app.route("/transaksi/import/pratonton", methods=["POST"])
+def import_csv_pratonton():
+    fail = request.files.get("fail_csv")
+    if not fail or fail.filename == "":
+        return render_template("import_csv.html", ralat="Sila pilih fail CSV terlebih dahulu.")
+
+    try:
+        teks = fail.read().decode("utf-8-sig")
+        baris = parse_moomoo_csv(teks)
+    except Exception:
+        return render_template(
+            "import_csv.html",
+            ralat="Fail CSV tidak dapat dibaca. Pastikan ia fail eksport History Transactions dari moomoo.",
+        )
+
+    if not baris:
+        return render_template(
+            "import_csv.html", ralat="Tiada transaksi sah dijumpai dalam fail ini."
+        )
+
+    db = get_db()
+    sedia_ada = {
+        (t["tarikh"], t["kaunter"], t["jenis"], t["kuantiti"], round(t["harga_seunit"], 4))
+        for t in muat_semua_transaksi(db)
+    }
+    for b in baris:
+        kunci = (b["tarikh"], b["kaunter"], b["jenis"], b["kuantiti"], round(b["harga_seunit"], 4))
+        b["mungkin_pendua"] = kunci in sedia_ada
+
+    return render_template("import_csv_pratonton.html", baris=baris)
+
+
+@app.route("/transaksi/import/sahkan", methods=["POST"])
+def import_csv_sahkan():
+    pilih = request.form.getlist("pilih")
+    db = get_db()
+    jumlah = 0
+    for i in pilih:
+        tarikh = request.form.get(f"tarikh_{i}")
+        kaunter = request.form.get(f"kaunter_{i}")
+        jenis = request.form.get(f"jenis_{i}")
+        kuantiti = request.form.get(f"kuantiti_{i}")
+        harga = request.form.get(f"harga_{i}")
+        caj = request.form.get(f"caj_{i}", "0")
+        nota = request.form.get(f"nota_{i}", "")
+        if not (tarikh and kaunter and jenis and kuantiti and harga):
+            continue
+        db.execute(
+            """INSERT INTO transaksi (tarikh, kaunter, jenis, kuantiti, harga_seunit, caj, nota)
+               VALUES (?, ?, ?, ?, ?, ?, ?)""",
+            (tarikh, kaunter.strip().upper(), jenis, int(kuantiti), float(harga), float(caj or 0), nota),
+        )
+        jumlah += 1
+    db.commit()
+    return redirect(url_for("senarai_transaksi", diimport=jumlah))
 
 
 @app.route("/laporan")

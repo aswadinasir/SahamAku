@@ -55,3 +55,30 @@ def kira_ledger(senarai_transaksi):
             }
 
     return ledger, portfolio
+
+
+def kira_tunai(senarai_transaksi, senarai_modal):
+    """Kira jumlah modal bersih (masuk - keluar) dan anggaran baki tunai
+    (modal bersih ditolak perbelanjaan bersih untuk beli/jual saham).
+    """
+    jumlah_modal = 0.0
+    for m in senarai_modal:
+        if m["jenis"] == "MASUK":
+            jumlah_modal += m["jumlah"]
+        else:
+            jumlah_modal -= m["jumlah"]
+
+    perbelanjaan_bersih = 0.0
+    for t in senarai_transaksi:
+        if t["jenis"] == "BELI":
+            perbelanjaan_bersih += t["kuantiti"] * t["harga_seunit"] + t["caj"]
+        else:
+            perbelanjaan_bersih -= t["kuantiti"] * t["harga_seunit"] - t["caj"]
+
+    baki_tunai = jumlah_modal - perbelanjaan_bersih
+
+    return {
+        "jumlah_modal": round(jumlah_modal, 2),
+        "perbelanjaan_bersih_saham": round(perbelanjaan_bersih, 2),
+        "baki_tunai": round(baki_tunai, 2),
+    }

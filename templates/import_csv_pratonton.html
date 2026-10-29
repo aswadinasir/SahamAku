@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Pratonton Import - SahamAku{% endblock %}
+{% block content %}
+<h1>Pratonton Import</h1>
+<p>Semak senarai di bawah. Nyahtanda mana-mana baris yang anda tak nak import, kemudian klik "Sahkan Import".</p>
+<p class="catatan-kecil">Baris bertanda <span class="tag tag-pendua">MUNGKIN PENDUA</span> nampak sama dengan transaksi sedia ada (tarikh, kaunter, jenis, kuantiti &amp; harga sama) — tidak ditanda pilih secara automatik.</p>
+
+<form method="post" action="{{ url_for('import_csv_sahkan') }}">
+  <div class="jadual-bungkus">
+  <table class="jadual">
+    <thead>
+      <tr>
+        <th></th>
+        <th>Tarikh</th>
+        <th>Kaunter</th>
+        <th>Jenis</th>
+        <th>Kuantiti</th>
+        <th>Harga/Unit</th>
+        <th>Nota</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for b in baris %}
+      <tr>
+        <td>
+          <input type="checkbox" name="pilih" value="{{ loop.index0 }}" {{ "" if b.mungkin_pendua else "checked" }}>
+          <input type="hidden" name="tarikh_{{ loop.index0 }}" value="{{ b.tarikh }}">
+          <input type="hidden" name="kaunter_{{ loop.index0 }}" value="{{ b.kaunter }}">
+          <input type="hidden" name="jenis_{{ loop.index0 }}" value="{{ b.jenis }}">
+          <input type="hidden" name="kuantiti_{{ loop.index0 }}" value="{{ b.kuantiti }}">
+          <input type="hidden" name="harga_{{ loop.index0 }}" value="{{ b.harga_seunit }}">
+          <input type="hidden" name="caj_{{ loop.index0 }}" value="{{ b.caj }}">
+          <input type="hidden" name="nota_{{ loop.index0 }}" value="{{ b.nota }}">
+        </td>
+        <td>{{ b.tarikh }}</td>
+        <td>{{ b.kaunter }}</td>
+        <td><span class="tag {{ 'tag-beli' if b.jenis == 'BELI' else 'tag-jual' }}">{{ b.jenis }}</span></td>
+        <td>{{ "{:,}".format(b.kuantiti) }}</td>
+        <td>{{ "%.4f"|format(b.harga_seunit) }}</td>
+        <td>
+          {{ b.nota }}
+          {% if b.mungkin_pendua %}<span class="tag tag-pendua">MUNGKIN PENDUA</span>{% endif %}
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  </div>
+  <div class="borang-tindakan-import">
+    <button type="submit" class="btn btn-utama">Sahkan Import</button>
+    <a href="{{ url_for('import_csv_borang') }}" class="btn">Batal</a>
+  </div>
+</form>
+{% endblock %}

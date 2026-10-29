@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Edit Modal - SahamAku{% endblock %}
+{% block content %}
+<h1>Edit Rekod Modal</h1>
+
+<section class="kad">
+  <form method="post" class="borang">
+    <div class="borang-baris">
+      <label>Tarikh
+        <input type="date" name="tarikh" value="{{ m.tarikh }}" required>
+      </label>
+      <label>Jenis
+        <select name="jenis" required>
+          <option value="MASUK" {{ "selected" if m.jenis == "MASUK" }}>MASUK (deposit)</option>
+          <option value="KELUAR" {{ "selected" if m.jenis == "KELUAR" }}>KELUAR (withdraw)</option>
+        </select>
+      </label>
+      <label>Jumlah (RM)
+        <input type="number" name="jumlah" min="0.01" step="0.01" value="{{ m.jumlah }}" required>
+      </label>
+    </div>
+    <div class="borang-baris">
+      <label class="lebar-penuh">Nota (pilihan)
+        <input type="text" name="nota" value="{{ m.nota or '' }}">
+      </label>
+    </div>
+    <button type="submit" class="btn btn-utama">Kemaskini</button>
+    <a href="{{ url_for('senarai_modal') }}" class="btn">Batal</a>
+  </form>
+</section>
+{% endblock %}
