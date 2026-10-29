@@ -81,6 +81,13 @@ h1 { margin-top: 0; }
   font-weight: 700;
 }
 
+.kad-catatan {
+  display: block;
+  font-size: 0.78rem;
+  color: #777;
+  margin-top: 0.3rem;
+}
+
 .positif { color: var(--warna-positif); }
 .negatif { color: var(--warna-negatif); }
 

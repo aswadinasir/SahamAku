@@ -286,6 +286,8 @@ def laporan_untung_rugi():
     jumlah_untung_rugi = sum(b["untung_rugi"] for b in jualan)
     jumlah_untung = sum(b["untung_rugi"] for b in jualan if b["untung_rugi"] > 0)
     jumlah_rugi = sum(b["untung_rugi"] for b in jualan if b["untung_rugi"] < 0)
+    bilangan_untung = sum(1 for b in jualan if b["untung_rugi"] > 0)
+    bilangan_rugi = sum(1 for b in jualan if b["untung_rugi"] < 0)
 
     return render_template(
         "laporan.html",
@@ -293,6 +295,9 @@ def laporan_untung_rugi():
         jumlah_untung_rugi=round(jumlah_untung_rugi, 2),
         jumlah_untung=round(jumlah_untung, 2),
         jumlah_rugi=round(jumlah_rugi, 2),
+        bilangan_untung=bilangan_untung,
+        bilangan_rugi=bilangan_rugi,
+        bilangan_jualan=len(jualan),
     )
 
 

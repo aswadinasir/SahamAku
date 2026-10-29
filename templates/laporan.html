@@ -2,25 +2,32 @@
 {% block title %}Laporan Untung/Rugi - SahamAku{% endblock %}
 {% block content %}
 <h1>Laporan Untung/Rugi (Direalisasi)</h1>
+<p class="catatan-kecil">
+  Ringkasan untung/rugi <strong>sebenar</strong> daripada {{ bilangan_jualan }} transaksi JUAL yang telah anda rekodkan
+  setakat ini — bukan anggaran nilai pasaran semasa bagi saham yang masih anda pegang (lihat Dashboard untuk itu).
+</p>
 
 <div class="ringkasan-grid">
   <div class="kad">
     <span class="kad-label">Jumlah Untung</span>
     <span class="kad-nilai positif">RM {{ "%.2f"|format(jumlah_untung) }}</span>
+    <span class="kad-catatan">Jumlah daripada {{ bilangan_untung }} jualan yang untung</span>
   </div>
   <div class="kad">
     <span class="kad-label">Jumlah Rugi</span>
     <span class="kad-nilai negatif">RM {{ "%.2f"|format(jumlah_rugi) }}</span>
+    <span class="kad-catatan">Jumlah daripada {{ bilangan_rugi }} jualan yang rugi</span>
   </div>
   <div class="kad">
     <span class="kad-label">Untung/Rugi Bersih</span>
     <span class="kad-nilai {{ 'positif' if jumlah_untung_rugi >= 0 else 'negatif' }}">
       RM {{ "%.2f"|format(jumlah_untung_rugi) }}
     </span>
+    <span class="kad-catatan">Jumlah Untung + Jumlah Rugi (prestasi dagangan keseluruhan)</span>
   </div>
 </div>
 
-<h2>Rekod Jualan</h2>
+<h2>Rekod Jualan (Perincian Setiap Transaksi)</h2>
 {% if jualan %}
 <table class="jadual">
   <thead>
