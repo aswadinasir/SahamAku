@@ -58,14 +58,14 @@
         <td>{{ b.kaunter }}</td>
         <td><span class="tag {{ 'tag-beli' if b.jenis == 'BELI' else 'tag-jual' }}">{{ b.jenis }}</span></td>
         <td>{{ b.kuantiti | fmt_unit }}</td>
-        <td>{{ "%.4f"|format(b.harga_seunit) }}</td>
-        <td>{{ "%.2f"|format(b.komisen) }}</td>
-        <td>{{ "%.2f"|format(b.yuran_platform) }}</td>
-        <td>{{ "%.2f"|format(b.yuran_kliring) }}</td>
-        <td>{{ "%.2f"|format(b.duti_setem) }}</td>
-        <td>{{ "%.2f"|format(b.sst) }}</td>
-        <td>{{ "%.2f"|format(b.caj_lain) }}</td>
-        <td>{{ "%.2f"|format(b.caj) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.4f"|format(b.harga_seunit) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.komisen) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.yuran_platform) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.yuran_kliring) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.duti_setem) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.sst) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj_lain) }}</td>
+        <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj) }}</td>
         <td>
           {{ b.nota }}
           {% if b.mungkin_pendua %}<span class="tag tag-pendua">MUNGKIN PENDUA</span>{% endif %}

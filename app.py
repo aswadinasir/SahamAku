@@ -75,6 +75,7 @@ def muat_semua_modal(db):
     return [dict(r) for r in rows]
 
 
+@app.template_filter("simbol_mata_wang")
 def simbol_mata_wang(kod):
     return "RM" if kod == "MYR" else (kod or "")
 

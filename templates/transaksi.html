@@ -162,12 +162,12 @@
       <td><span class="tag {{ 'tag-beli' if t.jenis == 'BELI' else 'tag-jual' }}">{{ t.jenis }}</span></td>
       <td>{{ t.kuantiti | fmt_unit }}</td>
       <td>{{ t.simbol }} {{ "%.4f"|format(t.harga_seunit) }}</td>
-      <td>{{ "%.2f"|format(t.komisen) }}</td>
-      <td>{{ "%.2f"|format(t.yuran_platform) }}</td>
-      <td>{{ "%.2f"|format(t.yuran_kliring) }}</td>
-      <td>{{ "%.2f"|format(t.duti_setem) }}</td>
-      <td>{{ "%.2f"|format(t.sst) }}</td>
-      <td>{{ "%.2f"|format(t.caj_lain) }}</td>
+      <td>{{ t.simbol }} {{ "%.2f"|format(t.komisen) }}</td>
+      <td>{{ t.simbol }} {{ "%.2f"|format(t.yuran_platform) }}</td>
+      <td>{{ t.simbol }} {{ "%.2f"|format(t.yuran_kliring) }}</td>
+      <td>{{ t.simbol }} {{ "%.2f"|format(t.duti_setem) }}</td>
+      <td>{{ t.simbol }} {{ "%.2f"|format(t.sst) }}</td>
+      <td>{{ t.simbol }} {{ "%.2f"|format(t.caj_lain) }}</td>
       <td>{{ t.simbol }} {{ "%.2f"|format(t.caj) }}</td>
       <td>
         {% if t.untung_rugi is not none %}
