@@ -35,6 +35,9 @@
       <label>Harga / Unit (ikut pasaran)
         <input type="number" name="harga_seunit" min="0" step="0.0001" value="{{ t.harga_seunit }}" required>
       </label>
+      <label id="f-kadar-wrap" {{ "hidden" if t.pasaran == "MY" }}>Kadar Tukaran (ke RM)
+        <input type="number" name="kadar_tukaran" id="f-kadar-tukaran" min="0.000001" step="0.000001" value="{{ t.kadar_tukaran or '' }}" placeholder="cth 4.2650">
+      </label>
     </div>
     <div class="borang-baris">
       <label>Komisen
@@ -72,13 +75,16 @@
   (function () {
     var selPasaran = document.getElementById("f-pasaran");
     var inputKuantiti = document.getElementById("f-kuantiti");
+    var kadarWrap = document.getElementById("f-kadar-wrap");
     function kemaskini() {
       if (selPasaran.value === "MY") {
         inputKuantiti.step = "1";
         inputKuantiti.min = "1";
+        kadarWrap.hidden = true;
       } else {
         inputKuantiti.step = "any";
         inputKuantiti.min = "0.000001";
+        kadarWrap.hidden = false;
       }
     }
     selPasaran.addEventListener("change", kemaskini);

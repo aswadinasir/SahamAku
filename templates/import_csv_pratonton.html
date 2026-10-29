@@ -29,6 +29,7 @@
         <th>SST</th>
         <th>Caj Lain</th>
         <th>Jumlah Caj</th>
+        <th>Kadar Tukaran (ke RM)</th>
       </tr>
     </thead>
     <tbody>
@@ -67,6 +68,11 @@
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.sst) }}</td>
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj_lain) }}</td>
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj) }}</td>
+        <td>
+          {% if b.pasaran != "MY" %}
+          <input type="number" name="kadar_tukaran_{{ loop.index0 }}" min="0.000001" step="0.000001" style="width:6rem" placeholder="cth 4.2650">
+          {% endif %}
+        </td>
       </tr>
       {% endfor %}
     </tbody>

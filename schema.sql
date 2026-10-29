@@ -14,6 +14,7 @@ CREATE TABLE IF NOT EXISTS transaksi (
     duti_setem REAL NOT NULL DEFAULT 0 CHECK (duti_setem >= 0),
     sst REAL NOT NULL DEFAULT 0 CHECK (sst >= 0),
     caj_lain REAL NOT NULL DEFAULT 0 CHECK (caj_lain >= 0),
+    kadar_tukaran REAL CHECK (kadar_tukaran IS NULL OR kadar_tukaran > 0),
     nota TEXT,
     dicipta_pada TEXT NOT NULL DEFAULT (datetime('now'))
 );

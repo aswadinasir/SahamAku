@@ -209,6 +209,24 @@ def _sahkan_kuantiti(pasaran, kuantiti):
     return kuantiti
 
 
+def _baca_kadar_tukaran(form, pasaran, indeks=None):
+    """Kadar tukaran (1 unit mata wang asing = RM?) diisi manual oleh pengguna
+    utk transaksi pasaran bukan-MY, supaya nilai RM sebenar setiap transaksi
+    boleh dikira (utk Laporan Untung/Rugi gabungan). MY tak perlukan ini
+    (RM = RM). Pulangkan None jika tiada/tak sah."""
+    if pasaran == "MY":
+        return None
+    nama_medan = f"kadar_tukaran_{indeks}" if indeks is not None else "kadar_tukaran"
+    nilai = (form.get(nama_medan) or "").strip()
+    if not nilai:
+        return None
+    try:
+        kadar = float(nilai)
+    except ValueError:
+        return None
+    return kadar if kadar > 0 else None
+
+
 @app.route("/transaksi/tambah", methods=["POST"])
 def tambah_transaksi():
     db = get_db()
@@ -218,8 +236,8 @@ def tambah_transaksi():
     db.execute(
         """INSERT INTO transaksi
            (tarikh, masa, pasaran, mata_wang, kaunter, jenis, kuantiti, harga_seunit,
-            komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+            komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, kadar_tukaran, nota)
+           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
         (
             request.form["tarikh"],
             request.form.get("masa", "").strip(),
@@ -231,6 +249,7 @@ def tambah_transaksi():
             float(request.form["harga_seunit"]),
             fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
             fee["duti_setem"], fee["sst"], fee["caj_lain"],
+            _baca_kadar_tukaran(request.form, pasaran),
             request.form.get("nota", "").strip(),
         ),
     )
@@ -250,7 +269,7 @@ def edit_transaksi(transaksi_id):
                SET tarikh = ?, masa = ?, pasaran = ?, mata_wang = ?, kaunter = ?, jenis = ?,
                    kuantiti = ?, harga_seunit = ?,
                    komisen = ?, yuran_platform = ?, yuran_kliring = ?, duti_setem = ?, sst = ?, caj_lain = ?,
-                   nota = ?
+                   kadar_tukaran = ?, nota = ?
                WHERE id = ?""",
             (
                 request.form["tarikh"],
@@ -263,6 +282,7 @@ def edit_transaksi(transaksi_id):
                 float(request.form["harga_seunit"]),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
                 fee["duti_setem"], fee["sst"], fee["caj_lain"],
+                _baca_kadar_tukaran(request.form, pasaran),
                 request.form.get("nota", "").strip(),
                 transaksi_id,
             ),
@@ -447,13 +467,14 @@ def import_csv_sahkan():
         db.execute(
             """INSERT INTO transaksi
                (tarikh, masa, pasaran, mata_wang, kaunter, jenis, kuantiti, harga_seunit,
-                komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, nota)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
+                komisen, yuran_platform, yuran_kliring, duti_setem, sst, caj_lain, kadar_tukaran, nota)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)""",
             (
                 tarikh, masa, pasaran, mata_wang, kaunter.strip().upper(), jenis,
                 _sahkan_kuantiti(pasaran, kuantiti), float(harga),
                 fee["komisen"], fee["yuran_platform"], fee["yuran_kliring"],
-                fee["duti_setem"], fee["sst"], fee["caj_lain"], nota,
+                fee["duti_setem"], fee["sst"], fee["caj_lain"],
+                _baca_kadar_tukaran(request.form, pasaran, indeks=i), nota,
             ),
         )
         jumlah += 1
@@ -475,6 +496,23 @@ def laporan_untung_rugi():
             round((b["untung_rugi"] / kos_asas) * 100, 2) if kos_asas > 0 else None
         )
         b["simbol"] = simbol_mata_wang(b["mata_wang"])
+        # Nilai RM setiap jualan - guna kadar tukaran transaksi tu sendiri (bukan
+        # kadar semasa), supaya ia mencerminkan nilai RM sebenar waktu jualan
+        # berlaku. MY sudah dalam RM (kadar = 1); pasaran lain perlukan
+        # kadar_tukaran diisi manual, jika tiada - tak disertakan dalam jumlah RM.
+        if b["pasaran"] == "MY":
+            b["untung_rugi_rm"] = b["untung_rugi"]
+        elif b["kadar_tukaran"]:
+            b["untung_rugi_rm"] = round(b["untung_rugi"] * b["kadar_tukaran"], 2)
+        else:
+            b["untung_rugi_rm"] = None
+
+    jumlah_keseluruhan_rm = round(
+        sum(b["untung_rugi_rm"] for b in jualan if b["untung_rugi_rm"] is not None), 2
+    )
+    bilangan_tiada_kadar = sum(
+        1 for b in jualan if b["pasaran"] != "MY" and b["kadar_tukaran"] is None
+    )
 
     # Ringkasan dikira BERASINGAN ikut pasaran - RM dan USD tak boleh dijumlahkan terus.
     # Papar tab MY & US sentiasa (walaupun tiada jualan lagi utk pasaran tu).
@@ -504,6 +542,8 @@ def laporan_untung_rugi():
         jualan=jualan,
         ringkasan_pasaran=ringkasan_pasaran,
         bilangan_jualan=len(jualan),
+        jumlah_keseluruhan_rm=jumlah_keseluruhan_rm,
+        bilangan_tiada_kadar=bilangan_tiada_kadar,
     )
 
 

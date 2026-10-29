@@ -40,6 +40,9 @@
       <label>Harga / Unit (ikut pasaran)
         <input type="number" name="harga_seunit" min="0" step="0.0001" required>
       </label>
+      <label id="f-kadar-wrap" hidden>Kadar Tukaran (ke RM)
+        <input type="number" name="kadar_tukaran" id="f-kadar-tukaran" min="0.000001" step="0.000001" placeholder="cth 4.2650">
+      </label>
     </div>
     <div class="borang-baris">
       <label>Komisen
@@ -70,6 +73,7 @@
     </div>
     <p class="catatan-kecil" style="margin:0;">Isi Masa jika ada lebih satu transaksi kaunter sama pada tarikh sama (cth: beli & jual hari sama) — ini pastikan turutan BELI/JUAL dikira betul.</p>
     <p class="catatan-kecil" id="kuantiti-catatan" style="margin:0;">Pasaran MY: kuantiti mesti unit bulat. Tukar ke US untuk benarkan kuantiti pecahan (saham serpihan).</p>
+    <p class="catatan-kecil" id="kadar-catatan" style="margin:0;" hidden>Kadar Tukaran (pilihan): isi kadar sebenar waktu transaksi ni berlaku (cth 1 USD = RM4.2650) supaya Laporan Untung/Rugi boleh papar jumlah keseluruhan gabungan dalam RM.</p>
     <button type="submit" class="btn btn-utama">Simpan Transaksi</button>
   </form>
   <p class="catatan-kecil">Ada penyata moomoo? <a href="{{ url_for('import_csv_borang') }}">Import dari fail CSV</a> dan tambah banyak transaksi sekali gus.</p>
@@ -80,15 +84,21 @@
     var selPasaran = document.getElementById("f-pasaran");
     var inputKuantiti = document.getElementById("f-kuantiti");
     var catatan = document.getElementById("kuantiti-catatan");
+    var kadarWrap = document.getElementById("f-kadar-wrap");
+    var kadarCatatan = document.getElementById("kadar-catatan");
     function kemaskini() {
       if (selPasaran.value === "MY") {
         inputKuantiti.step = "1";
         inputKuantiti.min = "1";
         catatan.textContent = "Pasaran MY: kuantiti mesti unit bulat. Tukar ke US untuk benarkan kuantiti pecahan (saham serpihan).";
+        kadarWrap.hidden = true;
+        kadarCatatan.hidden = true;
       } else {
         inputKuantiti.step = "any";
         inputKuantiti.min = "0.000001";
         catatan.textContent = "Pasaran US: kuantiti boleh pecahan (cth 0.0132 unit untuk saham serpihan).";
+        kadarWrap.hidden = false;
+        kadarCatatan.hidden = false;
       }
     }
     selPasaran.addEventListener("change", kemaskini);

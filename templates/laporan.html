@@ -8,6 +8,20 @@
   Ringkasan dikira berasingan ikut pasaran — RM dan mata wang asing tidak dijumlahkan terus.
 </p>
 
+{% if bilangan_jualan > 0 %}
+<div class="kad" style="margin-bottom:1.5rem;max-width:28rem;">
+  <span class="kad-label">Jumlah Keseluruhan Untung/Rugi (RM, gabungan semua pasaran)</span>
+  <span class="kad-nilai {{ 'positif' if jumlah_keseluruhan_rm >= 0 else 'negatif' }}">
+    RM {{ "%.2f"|format(jumlah_keseluruhan_rm) }}
+  </span>
+  {% if bilangan_tiada_kadar %}
+  <span class="kad-catatan">⚠ {{ bilangan_tiada_kadar }} jualan pasaran asing tiada Kadar Tukaran direkod — tidak termasuk dalam jumlah ini. Edit transaksi berkenaan utk isi kadar tukaran.</span>
+  {% else %}
+  <span class="kad-catatan">Ditukar ke RM guna Kadar Tukaran yang direkod pada setiap transaksi jualan pasaran asing.</span>
+  {% endif %}
+</div>
+{% endif %}
+
 {% if ringkasan_pasaran %}
 <div class="tab-bar" id="laporan-tab-bar">
   {% for r in ringkasan_pasaran %}
@@ -49,6 +63,7 @@
       <th>Caj</th>
       <th>Untung/Rugi</th>
       <th>Peratus Untung/Rugi</th>
+      {% if r.pasaran != "MY" %}<th>Nilai RM</th>{% endif %}
     </tr>
   </thead>
   <tbody>
@@ -64,6 +79,11 @@
       <td class="{{ 'positif' if t.untung_rugi >= 0 else 'negatif' }}">
         {% if t.peratus_untung_rugi is not none %}{{ "%.2f"|format(t.peratus_untung_rugi) }}%{% else %}-{% endif %}
       </td>
+      {% if r.pasaran != "MY" %}
+      <td class="{{ 'positif' if t.untung_rugi >= 0 else 'negatif' }}">
+        {% if t.untung_rugi_rm is not none %}RM {{ "%.2f"|format(t.untung_rugi_rm) }}{% else %}-{% endif %}
+      </td>
+      {% endif %}
     </tr>
     {% endfor %}
   </tbody>
