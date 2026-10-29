@@ -9,8 +9,24 @@
 
 <div class="grid-ringkasan" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;margin-bottom:1.5rem;">
   <div class="kad">
+    <span class="kad-label">Jumlah Keseluruhan Deposit</span>
+    <span class="kad-nilai positif">RM {{ "%.2f"|format(jumlah_deposit) }}</span>
+    <span class="kad-catatan">Jumlah kasar wang MASUK (sebelum tolak pengeluaran)</span>
+  </div>
+  <div class="kad">
+    <span class="kad-label">Jumlah Keseluruhan Pengeluaran</span>
+    <span class="kad-nilai negatif">RM {{ "%.2f"|format(jumlah_pengeluaran) }}</span>
+    <span class="kad-catatan">Jumlah kasar wang KELUAR (withdraw)</span>
+  </div>
+  <div class="kad">
     <span class="kad-label">Jumlah Modal Bersih</span>
     <span class="kad-nilai {{ 'positif' if jumlah_modal >= 0 else 'negatif' }}">RM {{ "%.2f"|format(jumlah_modal) }}</span>
+    <span class="kad-catatan">Deposit − Pengeluaran</span>
+  </div>
+  <div class="kad">
+    <span class="kad-label">Nilai Pelaburan Semasa</span>
+    <span class="kad-nilai">RM {{ "%.2f"|format(nilai_pelaburan) }}</span>
+    <span class="kad-catatan">Jumlah kos saham yang sedang dipegang (lihat Dashboard)</span>
   </div>
 </div>
 

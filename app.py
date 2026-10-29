@@ -186,13 +186,22 @@ def senarai_modal():
     db = get_db()
     modal = muat_semua_modal(db)
     modal.sort(key=lambda m: (m["tarikh"], m["id"]), reverse=True)
-    jumlah_modal = sum(
-        m["jumlah"] if m["jenis"] == "MASUK" else -m["jumlah"] for m in modal
-    )
+
+    jumlah_deposit = sum(m["jumlah"] for m in modal if m["jenis"] == "MASUK")
+    jumlah_pengeluaran = sum(m["jumlah"] for m in modal if m["jenis"] == "KELUAR")
+    jumlah_modal = jumlah_deposit - jumlah_pengeluaran
+
+    transaksi = muat_semua_transaksi(db)
+    _, portfolio = kira_ledger(transaksi)
+    nilai_pelaburan = sum(p["nilai_kos"] for p in portfolio.values())
+
     return render_template(
         "modal.html",
         modal=modal,
+        jumlah_deposit=round(jumlah_deposit, 2),
+        jumlah_pengeluaran=round(jumlah_pengeluaran, 2),
         jumlah_modal=round(jumlah_modal, 2),
+        nilai_pelaburan=round(nilai_pelaburan, 2),
         hari_ini=date.today().isoformat(),
     )
 
