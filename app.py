@@ -302,15 +302,35 @@ def import_csv_pratonton():
         )
 
     db = get_db()
-    sedia_ada = {
-        (t["tarikh"], t["kaunter"], t["jenis"], t["kuantiti"], round(t["harga_seunit"], 4))
-        for t in muat_semua_transaksi(db)
-    }
-    for b in baris:
-        kunci = (b["tarikh"], b["kaunter"], b["jenis"], b["kuantiti"], round(b["harga_seunit"], 4))
-        b["mungkin_pendua"] = kunci in sedia_ada
+    tandakan_mungkin_pendua(baris, muat_semua_transaksi(db))
 
     return render_template("import_csv_pratonton.html", baris=baris)
+
+
+# Toleransi tarikh (hari) bila kesan pendua. Pesanan Stop/Trigger moomoo kadang
+# guna "Order Time" (masa pesanan diletak) yang boleh berbeza beberapa hari
+# daripada masa sebenar ia dipenuhi - jadi padanan tarikh tepat tak mencukupi.
+HARI_TOLERANSI_PENDUA = 7
+
+
+def tandakan_mungkin_pendua(baris_baharu, transaksi_sedia_ada):
+    """Tandakan setiap baris dalam baris_baharu dengan "mungkin_pendua" (bool)
+    jika ada transaksi sedia ada dengan kaunter/jenis/kuantiti/harga sama dan
+    tarikh dalam lingkungan HARI_TOLERANSI_PENDUA hari.
+    """
+    sedia_ada_oleh_kunci = {}
+    for t in transaksi_sedia_ada:
+        kunci = (t["kaunter"], t["jenis"], t["kuantiti"], round(t["harga_seunit"], 4))
+        sedia_ada_oleh_kunci.setdefault(kunci, []).append(t["tarikh"])
+
+    for b in baris_baharu:
+        kunci = (b["kaunter"], b["jenis"], b["kuantiti"], round(b["harga_seunit"], 4))
+        tarikh_sepadan = sedia_ada_oleh_kunci.get(kunci, [])
+        tarikh_b = date.fromisoformat(b["tarikh"])
+        b["mungkin_pendua"] = any(
+            abs((tarikh_b - date.fromisoformat(t_tarikh)).days) <= HARI_TOLERANSI_PENDUA
+            for t_tarikh in tarikh_sepadan
+        )
 
 
 @app.route("/transaksi/import/sahkan", methods=["POST"])
