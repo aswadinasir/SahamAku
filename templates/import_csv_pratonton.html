@@ -29,7 +29,6 @@
         <th>SST</th>
         <th>Caj Lain</th>
         <th>Jumlah Caj</th>
-        <th>Nota</th>
       </tr>
     </thead>
     <tbody>
@@ -68,7 +67,6 @@
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.sst) }}</td>
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj_lain) }}</td>
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj) }}</td>
-        <td>{{ b.nota }}</td>
       </tr>
       {% endfor %}
     </tbody>
