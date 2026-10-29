@@ -68,10 +68,11 @@
     {% endfor %}
   </tbody>
 </table>
+{% if r.bilangan_jualan == 0 %}
+<p class="kosong">Belum ada rekod jualan untuk pasaran {{ r.pasaran }} lagi.</p>
+{% endif %}
 </div>
 {% endfor %}
-{% else %}
-<p class="kosong">Tiada rekod jualan lagi.</p>
 {% endif %}
 
 <script>

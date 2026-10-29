@@ -108,25 +108,32 @@ def dashboard():
     transaksi = muat_semua_transaksi(db)
     modal = muat_semua_modal(db)
 
+    ledger, portfolio_ikut_pasaran = kira_ledger_ikut_pasaran(transaksi) if transaksi else ([], {})
+    # Papar tab MY & US sentiasa (walaupun tiada transaksi lagi utk pasaran tu),
+    # plus mana-mana pasaran lain yang ada dalam data tapi tak disenarai di PASARAN_MATA_WANG_LALAI.
+    senarai_pasaran = sorted(set(PASARAN_MATA_WANG_LALAI) | set(portfolio_ikut_pasaran))
     pasaran_data = []
-    if transaksi:
-        ledger, portfolio_ikut_pasaran = kira_ledger_ikut_pasaran(transaksi)
-        for p, portfolio in sorted(portfolio_ikut_pasaran.items()):
-            ledger_p = [b for b in ledger if b["pasaran"] == p]
-            jumlah_ur_p = sum(b["untung_rugi"] for b in ledger_p if b["untung_rugi"] is not None)
-            mata_wang_p = next((t["mata_wang"] for t in transaksi if t["pasaran"] == p), "MYR")
-            portfolio_senarai = sorted(
-                ({"kaunter": k, **v} for k, v in portfolio.items()),
-                key=lambda x: x["kaunter"],
-            )
-            pasaran_data.append({
-                "pasaran": p,
-                "simbol": simbol_mata_wang(mata_wang_p),
-                "portfolio": portfolio_senarai,
-                "jumlah_nilai_kos": round(sum(v["nilai_kos"] for v in portfolio.values()), 2),
-                "jumlah_untung_rugi": round(jumlah_ur_p, 2),
-                "bilangan_kaunter": len(portfolio),
-            })
+    for p in senarai_pasaran:
+        portfolio = portfolio_ikut_pasaran.get(p, {})
+        ledger_p = [b for b in ledger if b["pasaran"] == p]
+        jumlah_ur_p = sum(b["untung_rugi"] for b in ledger_p if b["untung_rugi"] is not None)
+        mata_wang_p = next(
+            (t["mata_wang"] for t in transaksi if t["pasaran"] == p),
+            PASARAN_MATA_WANG_LALAI.get(p, p),
+        )
+        portfolio_senarai = sorted(
+            ({"kaunter": k, **v} for k, v in portfolio.items()),
+            key=lambda x: x["kaunter"],
+        )
+        pasaran_data.append({
+            "pasaran": p,
+            "simbol": simbol_mata_wang(mata_wang_p),
+            "portfolio": portfolio_senarai,
+            "jumlah_nilai_kos": round(sum(v["nilai_kos"] for v in portfolio.values()), 2),
+            "jumlah_untung_rugi": round(jumlah_ur_p, 2),
+            "bilangan_kaunter": len(portfolio),
+            "ada_transaksi": any(t["pasaran"] == p for t in transaksi),
+        })
 
     # Modal & anggaran baki tunai: direkod dalam RM, jadi hanya pasaran MY diambil kira.
     tx_my = [t for t in transaksi if t["pasaran"] == "MY"]
@@ -135,6 +142,7 @@ def dashboard():
     return render_template(
         "dashboard.html",
         pasaran_data=pasaran_data,
+        ada_transaksi=bool(transaksi),
         jumlah_modal=tunai["jumlah_modal"],
         baki_tunai=tunai["baki_tunai"],
     )
@@ -455,16 +463,20 @@ def laporan_untung_rugi():
         b["simbol"] = simbol_mata_wang(b["mata_wang"])
 
     # Ringkasan dikira BERASINGAN ikut pasaran - RM dan USD tak boleh dijumlahkan terus.
+    # Papar tab MY & US sentiasa (walaupun tiada jualan lagi utk pasaran tu).
+    senarai_pasaran = sorted(set(PASARAN_MATA_WANG_LALAI) | {t["pasaran"] for t in transaksi})
     ringkasan_pasaran = []
-    for p in sorted({t["pasaran"] for t in transaksi}):
+    for p in senarai_pasaran:
         jualan_p = [b for b in jualan if b["pasaran"] == p]
-        if not jualan_p:
-            continue
         jumlah_untung_p = sum(b["untung_rugi"] for b in jualan_p if b["untung_rugi"] > 0)
         jumlah_rugi_p = sum(b["untung_rugi"] for b in jualan_p if b["untung_rugi"] < 0)
+        mata_wang_p = next(
+            (t["mata_wang"] for t in transaksi if t["pasaran"] == p),
+            PASARAN_MATA_WANG_LALAI.get(p, p),
+        )
         ringkasan_pasaran.append({
             "pasaran": p,
-            "simbol": jualan_p[0]["simbol"],
+            "simbol": simbol_mata_wang(mata_wang_p),
             "jumlah_untung": round(jumlah_untung_p, 2),
             "jumlah_rugi": round(jumlah_rugi_p, 2),
             "jumlah_untung_rugi": round(jumlah_untung_p + jumlah_rugi_p, 2),

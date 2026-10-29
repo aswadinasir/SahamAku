@@ -22,7 +22,7 @@
   Kemaskini di halaman <a href="{{ url_for('senarai_modal') }}">Modal</a> setiap kali anda masuk/keluarkan wang dari akaun pelaburan.
 </p>
 
-{% if not pasaran_data %}
+{% if not ada_transaksi %}
 <p class="kosong">Tiada pegangan saham lagi. Sila tambah transaksi di halaman <a href="{{ url_for('senarai_transaksi') }}">Transaksi</a>.</p>
 {% endif %}
 
@@ -75,7 +75,10 @@
   </tbody>
 </table>
 {% else %}
-<p class="kosong">Tiada pegangan semasa untuk pasaran ini (semua sudah dijual).</p>
+<p class="kosong">
+  {% if pd.ada_transaksi %}Tiada pegangan semasa untuk pasaran ini (semua sudah dijual).
+  {% else %}Belum ada transaksi direkod untuk pasaran {{ pd.pasaran }} lagi. Tambah di halaman <a href="{{ url_for('senarai_transaksi') }}">Transaksi</a>.{% endif %}
+</p>
 {% endif %}
 </div>
 {% endfor %}
