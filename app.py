@@ -384,7 +384,20 @@ def import_csv_pratonton():
     db = get_db()
     tandakan_mungkin_pendua(baris, muat_semua_transaksi(db))
 
-    return render_template("import_csv_pratonton.html", baris=baris)
+    # Baris yang nampak sama dengan transaksi sedia ada dilangkau terus daripada
+    # pratonton (tak perlu papar utk pengguna tolak/tandakan secara manual).
+    baris_baharu = [b for b in baris if not b["mungkin_pendua"]]
+    bilangan_pendua = len(baris) - len(baris_baharu)
+
+    if not baris_baharu:
+        return render_template(
+            "import_csv.html",
+            ralat=f"Semua {len(baris)} baris dalam fail ini nampak sama dengan transaksi sedia ada dalam sistem - tiada yang baharu utk diimport.",
+        )
+
+    return render_template(
+        "import_csv_pratonton.html", baris=baris_baharu, bilangan_pendua=bilangan_pendua
+    )
 
 
 # Toleransi tarikh (hari) bila kesan pendua. Pesanan Stop/Trigger moomoo kadang

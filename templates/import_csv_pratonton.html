@@ -3,7 +3,9 @@
 {% block content %}
 <h1>Pratonton Import</h1>
 <p>Semak senarai di bawah. Nyahtanda mana-mana baris yang anda tak nak import, kemudian klik "Sahkan Import".</p>
-<p class="catatan-kecil">Baris bertanda <span class="tag tag-pendua">MUNGKIN PENDUA</span> nampak sama dengan transaksi sedia ada (tarikh, kaunter, jenis, kuantiti &amp; harga sama) — tidak ditanda pilih secara automatik.</p>
+{% if bilangan_pendua %}
+<p class="catatan-kecil">{{ bilangan_pendua }} baris dilangkau terus (tidak dipaparkan) sebab nampak sama dengan transaksi sedia ada dalam sistem (tarikh, kaunter, jenis, kuantiti &amp; harga sama) — tiada tindakan diperlukan, ia tidak akan diimport semula.</p>
+{% endif %}
 <p class="catatan-kecil">Baris bertanda <span class="tag tag-amaran">⚠ SEMAK TARIKH</span> ialah pesanan jenis <strong>Stop/Trigger</strong> — tarikhnya ialah masa pesanan <em>diletak</em>, bukan semestinya masa ia <em>dipenuhi</em>. Semak &amp; betulkan tarikh terus di jadual bawah jika perlu (klik medan tarikh).</p>
 <p class="catatan-kecil">Lajur <strong>Masa</strong> digunakan untuk tentukan turutan BELI/JUAL yang betul bila ada lebih satu transaksi kaunter sama pada tarikh sama — tak perlu diubah melainkan anda tahu ia tak tepat.</p>
 
@@ -34,7 +36,7 @@
       {% for b in baris %}
       <tr>
         <td>
-          <input type="checkbox" name="pilih" value="{{ loop.index0 }}" {{ "" if b.mungkin_pendua else "checked" }}>
+          <input type="checkbox" name="pilih" value="{{ loop.index0 }}" checked>
           <input type="hidden" name="pasaran_{{ loop.index0 }}" value="{{ b.pasaran }}">
           <input type="hidden" name="mata_wang_{{ loop.index0 }}" value="{{ b.mata_wang }}">
           <input type="hidden" name="kaunter_{{ loop.index0 }}" value="{{ b.kaunter }}">
@@ -66,10 +68,7 @@
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.sst) }}</td>
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj_lain) }}</td>
         <td>{{ b.mata_wang | simbol_mata_wang }} {{ "%.2f"|format(b.caj) }}</td>
-        <td>
-          {{ b.nota }}
-          {% if b.mungkin_pendua %}<span class="tag tag-pendua">MUNGKIN PENDUA</span>{% endif %}
-        </td>
+        <td>{{ b.nota }}</td>
       </tr>
       {% endfor %}
     </tbody>
