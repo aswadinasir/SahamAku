@@ -207,6 +207,20 @@ section.kad {
   margin-bottom: 1.5rem;
 }
 
+.borang-tapis {
+  padding: 0.9rem 1.1rem;
+  margin-bottom: 1rem;
+  flex-direction: row;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+.borang-tapis .borang-baris {
+  align-items: flex-end;
+}
+.borang-tapis label {
+  font-size: 0.8rem;
+}
+
 .notis-jaya {
   background: #e4f5ea;
   color: #1c8a4c;

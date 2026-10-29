@@ -46,6 +46,31 @@
 </section>
 
 <h2>Senarai Transaksi</h2>
+<form method="get" action="{{ url_for('senarai_transaksi') }}" class="borang borang-tapis">
+  <div class="borang-baris">
+    <label>Dari Tarikh
+      <input type="date" name="dari" value="{{ f_dari }}">
+    </label>
+    <label>Hingga Tarikh
+      <input type="date" name="hingga" value="{{ f_hingga }}">
+    </label>
+    <label>Kaunter
+      <select name="kaunter">
+        <option value="">Semua Kaunter</option>
+        {% for k in senarai_kaunter %}
+        <option value="{{ k }}" {{ "selected" if f_kaunter == k }}>{{ k }}</option>
+        {% endfor %}
+      </select>
+    </label>
+  </div>
+  <div class="borang-baris">
+    <button type="submit" class="btn btn-utama">Tapis</button>
+    {% if ada_tapisan %}
+    <a href="{{ url_for('senarai_transaksi') }}" class="btn">Kosongkan Tapisan</a>
+    {% endif %}
+  </div>
+</form>
+
 {% if ledger %}
 <table class="jadual">
   <thead>
@@ -91,6 +116,8 @@
   </tbody>
 </table>
 {% else %}
-<p class="kosong">Tiada transaksi lagi.</p>
+<p class="kosong">
+  {% if ada_tapisan %}Tiada transaksi sepadan dengan tapisan ini.{% else %}Tiada transaksi lagi.{% endif %}
+</p>
 {% endif %}
 {% endblock %}

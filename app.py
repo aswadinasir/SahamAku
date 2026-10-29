@@ -82,13 +82,33 @@ def senarai_transaksi():
     db = get_db()
     transaksi = muat_semua_transaksi(db)
     ledger, _ = kira_ledger(transaksi)
-    ledger.sort(key=lambda t: (t["tarikh"], t["id"]), reverse=True)
+
+    senarai_kaunter = sorted({t["kaunter"] for t in transaksi})
+
+    f_dari = request.args.get("dari", "").strip()
+    f_hingga = request.args.get("hingga", "").strip()
+    f_kaunter = request.args.get("kaunter", "").strip().upper()
+
+    ledger_tapis = ledger
+    if f_dari:
+        ledger_tapis = [t for t in ledger_tapis if t["tarikh"] >= f_dari]
+    if f_hingga:
+        ledger_tapis = [t for t in ledger_tapis if t["tarikh"] <= f_hingga]
+    if f_kaunter:
+        ledger_tapis = [t for t in ledger_tapis if t["kaunter"] == f_kaunter]
+
+    ledger_tapis.sort(key=lambda t: (t["tarikh"], t["id"]), reverse=True)
     diimport = request.args.get("diimport", type=int)
     return render_template(
         "transaksi.html",
-        ledger=ledger,
+        ledger=ledger_tapis,
         hari_ini=date.today().isoformat(),
         diimport=diimport,
+        senarai_kaunter=senarai_kaunter,
+        f_dari=f_dari,
+        f_hingga=f_hingga,
+        f_kaunter=f_kaunter,
+        ada_tapisan=bool(f_dari or f_hingga or f_kaunter),
     )
 
 
