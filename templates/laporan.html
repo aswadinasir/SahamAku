@@ -28,10 +28,11 @@
       <th>Tarikh</th>
       <th>Kaunter</th>
       <th>Kuantiti Jual</th>
+      <th>Harga Beli Purata/Unit</th>
       <th>Harga Jual/Unit</th>
       <th>Caj</th>
-      <th>Kos Purata/Unit</th>
       <th>Untung/Rugi</th>
+      <th>Peratus Untung/Rugi</th>
     </tr>
   </thead>
   <tbody>
@@ -40,10 +41,13 @@
       <td>{{ t.tarikh }}</td>
       <td>{{ t.kaunter }}</td>
       <td>{{ "{:,}".format(t.kuantiti) }}</td>
+      <td>{{ "%.4f"|format(t.kos_purata_sebelum) }}</td>
       <td>{{ "%.4f"|format(t.harga_seunit) }}</td>
       <td>{{ "%.2f"|format(t.caj) }}</td>
-      <td>{{ "%.4f"|format(t.kos_purata_sebelum) }}</td>
       <td class="{{ 'positif' if t.untung_rugi >= 0 else 'negatif' }}">RM {{ "%.2f"|format(t.untung_rugi) }}</td>
+      <td class="{{ 'positif' if t.untung_rugi >= 0 else 'negatif' }}">
+        {% if t.peratus_untung_rugi is not none %}{{ "%.2f"|format(t.peratus_untung_rugi) }}%{% else %}-{% endif %}
+      </td>
     </tr>
     {% endfor %}
   </tbody>

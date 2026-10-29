@@ -277,6 +277,12 @@ def laporan_untung_rugi():
     jualan = [b for b in ledger if b["jenis"] == "JUAL"]
     jualan.sort(key=lambda t: (t["tarikh"], t["id"]), reverse=True)
 
+    for b in jualan:
+        kos_asas = b["kos_purata_sebelum"] * b["kuantiti"]
+        b["peratus_untung_rugi"] = (
+            round((b["untung_rugi"] / kos_asas) * 100, 2) if kos_asas > 0 else None
+        )
+
     jumlah_untung_rugi = sum(b["untung_rugi"] for b in jualan)
     jumlah_untung = sum(b["untung_rugi"] for b in jualan if b["untung_rugi"] > 0)
     jumlah_rugi = sum(b["untung_rugi"] for b in jualan if b["untung_rugi"] < 0)
