@@ -1,6 +1,6 @@
 import os
 import sqlite3
-from datetime import date
+from datetime import date, timedelta
 
 from flask import Flask, g, redirect, render_template, request, url_for
 
@@ -39,6 +39,16 @@ def muat_semua_transaksi(db):
         "SELECT * FROM transaksi ORDER BY tarikh ASC, id ASC"
     ).fetchall()
     return [dict(r) for r in rows]
+
+
+def julat_bulan_semasa():
+    hari_ini = date.today()
+    awal = hari_ini.replace(day=1)
+    if hari_ini.month == 12:
+        akhir = hari_ini.replace(day=31)
+    else:
+        akhir = hari_ini.replace(month=hari_ini.month + 1, day=1) - timedelta(days=1)
+    return awal.isoformat(), akhir.isoformat()
 
 
 def muat_semua_modal(db):
@@ -85,8 +95,13 @@ def senarai_transaksi():
 
     senarai_kaunter = sorted({t["kaunter"] for t in transaksi})
 
-    f_dari = request.args.get("dari", "").strip()
-    f_hingga = request.args.get("hingga", "").strip()
+    if "dari" in request.args:
+        # Borang tapisan dihantar (termasuk "Kosongkan Tapisan") - guna terus apa yang dihantar.
+        f_dari = request.args.get("dari", "").strip()
+        f_hingga = request.args.get("hingga", "").strip()
+    else:
+        # Lawatan pertama / klik nav - lalai tapis kepada bulan semasa.
+        f_dari, f_hingga = julat_bulan_semasa()
     f_kaunter = request.args.get("kaunter", "").strip().upper()
 
     ledger_tapis = ledger

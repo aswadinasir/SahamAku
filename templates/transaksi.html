@@ -66,10 +66,11 @@
   <div class="borang-baris">
     <button type="submit" class="btn btn-utama">Tapis</button>
     {% if ada_tapisan %}
-    <a href="{{ url_for('senarai_transaksi') }}" class="btn">Kosongkan Tapisan</a>
+    <a href="{{ url_for('senarai_transaksi', dari='', hingga='', kaunter='') }}" class="btn">Kosongkan Tapisan</a>
     {% endif %}
   </div>
 </form>
+<p class="catatan-kecil" style="margin-top:-0.6rem;">Tapisan lalai: bulan semasa. Klik "Kosongkan Tapisan" untuk lihat semua transaksi.</p>
 
 {% if ledger %}
 <table class="jadual">
