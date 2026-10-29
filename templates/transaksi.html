@@ -146,11 +146,13 @@
   <thead>
     <tr>
       <th>Tarikh</th>
+      <th>Masa</th>
       <th>Pasaran</th>
       <th>Kaunter</th>
       <th>Jenis</th>
       <th>Kuantiti</th>
       <th>Harga/Unit</th>
+      <th>Kadar Tukaran</th>
       <th>Komisen</th>
       <th>Yuran Platform</th>
       <th>Yuran Kliring</th>
@@ -167,11 +169,13 @@
     {% for t in ledger %}
     <tr>
       <td>{{ t.tarikh }}</td>
+      <td>{{ t.masa or "-" }}</td>
       <td>{{ t.pasaran }}</td>
       <td>{{ t.kaunter }}</td>
       <td><span class="tag {{ 'tag-beli' if t.jenis == 'BELI' else 'tag-jual' }}">{{ t.jenis }}</span></td>
       <td>{{ t.kuantiti | fmt_unit }}</td>
       <td>{{ t.simbol }} {{ "%.4f"|format(t.harga_seunit) }}</td>
+      <td>{{ "RM " + "%.4f"|format(t.kadar_tukaran) if t.kadar_tukaran else "-" }}</td>
       <td>{{ t.simbol }} {{ "%.2f"|format(t.komisen) }}</td>
       <td>{{ t.simbol }} {{ "%.2f"|format(t.yuran_platform) }}</td>
       <td>{{ t.simbol }} {{ "%.2f"|format(t.yuran_kliring) }}</td>
@@ -186,7 +190,7 @@
           -
         {% endif %}
       </td>
-      <td>{{ "{:,}".format(t.baki_selepas) }}</td>
+      <td>{{ t.baki_selepas | fmt_unit }}</td>
       <td class="tindakan">
         <a href="{{ url_for('edit_transaksi', transaksi_id=t.id) }}">Edit</a>
         <form method="post" action="{{ url_for('padam_transaksi', transaksi_id=t.id) }}" onsubmit="return confirm('Padam transaksi ini?');">
