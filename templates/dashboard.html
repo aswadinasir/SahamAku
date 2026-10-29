@@ -26,8 +26,16 @@
 <p class="kosong">Tiada pegangan saham lagi. Sila tambah transaksi di halaman <a href="{{ url_for('senarai_transaksi') }}">Transaksi</a>.</p>
 {% endif %}
 
+{% if pasaran_data %}
+<div class="tab-bar" id="pasaran-tab-bar">
+  {% for pd in pasaran_data %}
+  <button type="button" class="btn {{ 'btn-utama' if loop.first else '' }}" data-tab-pasaran="{{ pd.pasaran }}">Pasaran {{ pd.pasaran }} ({{ pd.simbol }})</button>
+  {% endfor %}
+</div>
+{% endif %}
+
 {% for pd in pasaran_data %}
-<h2>Pasaran {{ pd.pasaran }} ({{ pd.simbol }})</h2>
+<div class="tab-kandungan" data-tab-kandungan="{{ pd.pasaran }}" {{ "" if loop.first else "hidden" }}>
 <div class="ringkasan-grid">
   <div class="kad">
     <span class="kad-label">Bil. Kaunter Dipegang</span>
@@ -69,5 +77,20 @@
 {% else %}
 <p class="kosong">Tiada pegangan semasa untuk pasaran ini (semua sudah dijual).</p>
 {% endif %}
+</div>
 {% endfor %}
+
+<script>
+  (function () {
+    var butang = document.querySelectorAll("#pasaran-tab-bar [data-tab-pasaran]");
+    var kandungan = document.querySelectorAll("[data-tab-kandungan]");
+    butang.forEach(function (b) {
+      b.addEventListener("click", function () {
+        var dipilih = b.dataset.tabPasaran;
+        butang.forEach(function (x) { x.classList.toggle("btn-utama", x === b); });
+        kandungan.forEach(function (k) { k.hidden = k.dataset.tabKandungan !== dipilih; });
+      });
+    });
+  })();
+</script>
 {% endblock %}
