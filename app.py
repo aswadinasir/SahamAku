@@ -219,6 +219,7 @@ def senarai_modal():
     transaksi = muat_semua_transaksi(db)
     _, portfolio = kira_ledger(transaksi)
     nilai_pelaburan = sum(p["nilai_kos"] for p in portfolio.values())
+    tunai = kira_tunai(transaksi, modal)
 
     return render_template(
         "modal.html",
@@ -227,6 +228,7 @@ def senarai_modal():
         jumlah_pengeluaran=round(jumlah_pengeluaran, 2),
         jumlah_modal=round(jumlah_modal, 2),
         nilai_pelaburan=round(nilai_pelaburan, 2),
+        baki_tunai=tunai["baki_tunai"],
         hari_ini=date.today().isoformat(),
     )
 

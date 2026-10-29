@@ -28,6 +28,11 @@
     <span class="kad-nilai">RM {{ "%.2f"|format(nilai_pelaburan) }}</span>
     <span class="kad-catatan">Jumlah kos saham yang sedang dipegang (lihat Dashboard)</span>
   </div>
+  <div class="kad">
+    <span class="kad-label">Baki Tunai (Tidak Digunakan utk Saham)</span>
+    <span class="kad-nilai {{ 'positif' if baki_tunai >= 0 else 'negatif' }}">RM {{ "%.2f"|format(baki_tunai) }}</span>
+    <span class="kad-catatan">Modal Bersih − Nilai Pelaburan Semasa. Negatif = ada deposit belum direkod.</span>
+  </div>
 </div>
 
 <section class="kad">
