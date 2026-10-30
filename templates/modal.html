@@ -26,12 +26,15 @@
   <div class="kad">
     <span class="kad-label">Nilai Pelaburan Semasa</span>
     <span class="kad-nilai">RM {{ "%.2f"|format(nilai_pelaburan) }}</span>
-    <span class="kad-catatan">Jumlah kos saham yang sedang dipegang (lihat Dashboard)</span>
+    <span class="kad-catatan">Jumlah kos saham pasaran MY (RM) sahaja yang sedang dipegang (lihat Dashboard)</span>
   </div>
   <div class="kad">
     <span class="kad-label">Baki Tunai (Tidak Digunakan utk Saham)</span>
     <span class="kad-nilai {{ 'positif' if baki_tunai >= 0 else 'negatif' }}">RM {{ "%.2f"|format(baki_tunai) }}</span>
-    <span class="kad-catatan">Modal Bersih − Nilai Pelaburan Semasa. Negatif = ada deposit belum direkod.</span>
+    <span class="kad-catatan">
+      Modal Bersih − perbelanjaan bersih semua pasaran (pasaran asing ditukar ke RM guna Kadar Tukaran transaksi).
+      {% if bilangan_tiada_kadar_tunai %}⚠ {{ bilangan_tiada_kadar_tunai }} transaksi pasaran asing tiada kadar - tidak termasuk, baki ni belum lengkap.{% endif %}
+    </span>
   </div>
 </div>
 

@@ -17,10 +17,19 @@
     </span>
   </div>
 </div>
-<p class="catatan-kecil" style="margin-top:-1rem;margin-bottom:1.5rem;">
-  Anggaran Baki Tunai = Jumlah Modal Bersih − perbelanjaan bersih beli/jual saham <strong>pasaran MY (RM) sahaja</strong>.
+<p class="catatan-kecil" style="margin-top:-1rem;margin-bottom:0.4rem;">
+  Anggaran Baki Tunai = Jumlah Modal Bersih − perbelanjaan bersih beli/jual saham <strong>semua pasaran</strong> (transaksi
+  pasaran asing ditukar ke RM guna Kadar Tukaran yang direkod pada transaksi tu sendiri).
   Kemaskini di halaman <a href="{{ url_for('senarai_modal') }}">Modal</a> setiap kali anda masuk/keluarkan wang dari akaun pelaburan.
 </p>
+{% if bilangan_tiada_kadar_tunai %}
+<p class="catatan-kecil" style="margin-top:0;margin-bottom:1.5rem;color:#b35900;">
+  ⚠ {{ bilangan_tiada_kadar_tunai }} transaksi pasaran asing tiada Kadar Tukaran direkod — <strong>tidak termasuk</strong>
+  dalam Anggaran Baki Tunai di atas, jadi baki ni mungkin tak lengkap. Edit transaksi berkenaan utk isi kadar tukaran.
+</p>
+{% else %}
+<p style="margin-bottom:1.5rem;"></p>
+{% endif %}
 
 {% if not ada_transaksi %}
 <p class="kosong">Tiada pegangan saham lagi. Sila tambah transaksi di halaman <a href="{{ url_for('senarai_transaksi') }}">Transaksi</a>.</p>

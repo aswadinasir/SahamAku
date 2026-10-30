@@ -5,7 +5,7 @@ from datetime import date, timedelta
 from flask import Flask, g, redirect, render_template, request, url_for
 
 from import_moomoo import parse_moomoo_csv
-from portfolio import kira_ledger, kira_tunai
+from portfolio import kira_ledger, kira_tunai, kira_tunai_gabungan
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(BASE_DIR, "sahamaku.db")
@@ -136,9 +136,9 @@ def dashboard():
             "ada_transaksi": any(t["pasaran"] == p for t in transaksi),
         })
 
-    # Modal & anggaran baki tunai: direkod dalam RM, jadi hanya pasaran MY diambil kira.
-    tx_my = [t for t in transaksi if t["pasaran"] == "MY"]
-    tunai = kira_tunai(tx_my, modal)
+    # Modal direkod dalam RM; transaksi pasaran asing ditukar guna kadar_tukaran
+    # transaksi itu sendiri (jika diisi) supaya turut diambil kira dalam baki tunai.
+    tunai = kira_tunai_gabungan(transaksi, modal)
 
     return render_template(
         "dashboard.html",
@@ -146,6 +146,7 @@ def dashboard():
         ada_transaksi=bool(transaksi),
         jumlah_modal=tunai["jumlah_modal"],
         baki_tunai=tunai["baki_tunai"],
+        bilangan_tiada_kadar_tunai=tunai["bilangan_tiada_kadar"],
     )
 
 
@@ -312,12 +313,14 @@ def senarai_modal():
     jumlah_pengeluaran = sum(m["jumlah"] for m in modal if m["jenis"] == "KELUAR")
     jumlah_modal = jumlah_deposit - jumlah_pengeluaran
 
-    # Modal direkod dalam RM, jadi hanya pasaran MY diambil kira di sini.
     transaksi = muat_semua_transaksi(db)
+    # Nilai Pelaburan (kos pegangan semasa) kekal MY sahaja - kos purata wajaran
+    # merentasi pembelian pelbagai kadar tukaran tiada satu nilai RM yang tepat.
     tx_my = [t for t in transaksi if t["pasaran"] == "MY"]
     _, portfolio = kira_ledger(tx_my)
     nilai_pelaburan = sum(p["nilai_kos"] for p in portfolio.values())
-    tunai = kira_tunai(tx_my, modal)
+    # Baki Tunai pula merentasi semua pasaran, guna kadar_tukaran setiap transaksi.
+    tunai = kira_tunai_gabungan(transaksi, modal)
 
     return render_template(
         "modal.html",
@@ -327,6 +330,7 @@ def senarai_modal():
         jumlah_modal=round(jumlah_modal, 2),
         nilai_pelaburan=round(nilai_pelaburan, 2),
         baki_tunai=tunai["baki_tunai"],
+        bilangan_tiada_kadar_tunai=tunai["bilangan_tiada_kadar"],
         hari_ini=date.today().isoformat(),
     )
 

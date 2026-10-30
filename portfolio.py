@@ -82,3 +82,44 @@ def kira_tunai(senarai_transaksi, senarai_modal):
         "perbelanjaan_bersih_saham": round(perbelanjaan_bersih, 2),
         "baki_tunai": round(baki_tunai, 2),
     }
+
+
+def kira_tunai_gabungan(senarai_transaksi, senarai_modal):
+    """Sama seperti kira_tunai(), tapi kira perbelanjaan bersih MERENTASI SEMUA
+    pasaran (bukan MY sahaja) - transaksi pasaran asing ditukar ke RM guna
+    kadar_tukaran yang direkod pada transaksi itu sendiri. Transaksi pasaran
+    asing yang tiada kadar_tukaran DIKECUALIKAN (bilangannya dikira berasingan
+    supaya UI boleh beri amaran - baki tunai TIDAK lengkap jika ada yang
+    dikecualikan).
+    """
+    jumlah_modal = 0.0
+    for m in senarai_modal:
+        if m["jenis"] == "MASUK":
+            jumlah_modal += m["jumlah"]
+        else:
+            jumlah_modal -= m["jumlah"]
+
+    perbelanjaan_bersih_rm = 0.0
+    bilangan_tiada_kadar = 0
+    for t in senarai_transaksi:
+        amaun_asal = t["kuantiti"] * t["harga_seunit"] + (t["caj"] if t["jenis"] == "BELI" else -t["caj"])
+        if t["pasaran"] == "MY":
+            amaun_rm = amaun_asal
+        elif t.get("kadar_tukaran"):
+            amaun_rm = amaun_asal * t["kadar_tukaran"]
+        else:
+            bilangan_tiada_kadar += 1
+            continue
+        if t["jenis"] == "BELI":
+            perbelanjaan_bersih_rm += amaun_rm
+        else:
+            perbelanjaan_bersih_rm -= amaun_rm
+
+    baki_tunai = jumlah_modal - perbelanjaan_bersih_rm
+
+    return {
+        "jumlah_modal": round(jumlah_modal, 2),
+        "perbelanjaan_bersih_saham": round(perbelanjaan_bersih_rm, 2),
+        "baki_tunai": round(baki_tunai, 2),
+        "bilangan_tiada_kadar": bilangan_tiada_kadar,
+    }
