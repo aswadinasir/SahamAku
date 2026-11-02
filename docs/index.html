@@ -1,0 +1,1951 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>SahamAku</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#1f6f50">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="SahamAku">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<!--
+  Dihoskan di GitHub Pages - data disimpan dalam IndexedDB browser ini
+  sahaja (tiada pergantungan pada claude.ai atau mana-mana server lain).
+-->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@500;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  /* Layout: sticky top nav + single scrolling column of view sections, switched by hash route */
+  :root {
+    --bg: #f4f6f2;
+    --surface: #ffffff;
+    --surface-2: #eef1ea;
+    --border: #dde2d7;
+    --fg: #16241c;
+    --muted: #5d6e62;
+    --accent: #1f6f50;
+    --accent-ink: #ffffff;
+    --positive: #1c8a4c;
+    --negative: #b4382a;
+    --positive-bg: #e4f5ea;
+    --negative-bg: #fbe8e5;
+    --font-display: "Manrope", system-ui, sans-serif;
+    --font-body: "Inter", system-ui, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+    color-scheme: light;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #0e1511;
+      --surface: #161f19;
+      --surface-2: #1d2922;
+      --border: #2a3a30;
+      --fg: #e9efe9;
+      --muted: #93a69a;
+      --accent: #49a67c;
+      --accent-ink: #06130c;
+      --positive: #4fd090;
+      --negative: #ff8a78;
+      --positive-bg: #163024;
+      --negative-bg: #341c19;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0e1511;
+    --surface: #161f19;
+    --surface-2: #1d2922;
+    --border: #2a3a30;
+    --fg: #e9efe9;
+    --muted: #93a69a;
+    --accent: #49a67c;
+    --accent-ink: #06130c;
+    --positive: #4fd090;
+    --negative: #ff8a78;
+    --positive-bg: #163024;
+    --negative-bg: #341c19;
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-body);
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+  body::before {
+    content: "";
+    position: fixed;
+    inset: 0 0 auto;
+    height: env(safe-area-inset-top, 0px);
+    z-index: 10;
+    background: var(--accent);
+  }
+  h1, h2, h3 { font-family: var(--font-display); text-wrap: balance; margin: 0; }
+  .num { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+
+  a { color: var(--accent); }
+
+  header.topnav {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 5;
+    margin: 0 calc(-1 * max(16px, env(safe-area-inset-left, 0px))) 1.5rem calc(-1 * max(16px, env(safe-area-inset-right, 0px)));
+    padding: 0.9rem max(16px, env(safe-area-inset-left, 0px)) 0.9rem max(16px, env(safe-area-inset-right, 0px));
+    background: var(--accent);
+    color: var(--accent-ink);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
+  header.topnav .brand { font-family: var(--font-display); font-weight: 800; font-size: 1.15rem; display: flex; gap: 0.4rem; align-items: center; }
+  header.topnav nav { display: flex; gap: 0.3rem; flex-wrap: wrap; }
+  header.topnav nav button {
+    background: transparent;
+    border: 1px solid transparent;
+    color: var(--accent-ink);
+    font: inherit;
+    font-weight: 600;
+    font-size: 0.88rem;
+    padding: 0.4rem 0.75rem;
+    border-radius: 8px;
+    cursor: pointer;
+    opacity: 0.85;
+  }
+  header.topnav nav button[aria-current="true"] {
+    background: rgba(255,255,255,0.18);
+    border-color: rgba(255,255,255,0.35);
+    opacity: 1;
+  }
+
+  main { max-width: 980px; margin: 0 auto; padding-bottom: 3rem; }
+  section[hidden] { display: none !important; }
+
+  .grid-ringkasan {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+    gap: 0.9rem;
+    margin-bottom: 1.6rem;
+  }
+  .kad {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+  }
+  .kad-label { display: block; font-size: 0.8rem; color: var(--muted); margin-bottom: 0.35rem; }
+  .kad-nilai { display: block; font-family: var(--font-mono); font-weight: 600; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+  .kad-catatan { display: block; font-size: 0.76rem; color: var(--muted); margin-top: 0.3rem; }
+  .positif { color: var(--positive); }
+  .negatif { color: var(--negative); }
+
+  .pill {
+    display: inline-block;
+    padding: 0.15rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.02em;
+  }
+  .pill-beli { background: #dceaf7; color: #1d5a94; }
+  .pill-jual { background: var(--negative-bg); color: var(--negative); }
+  :root[data-theme="dark"] .pill-beli, @media (prefers-color-scheme: dark) { }
+
+  table.jadual {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  table.jadual th, table.jadual td {
+    padding: 0.6rem 0.7rem;
+    text-align: left;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.88rem;
+    white-space: nowrap;
+  }
+  table.jadual th { background: var(--surface-2); font-size: 0.74rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--muted); }
+  table.jadual tbody tr:last-child td { border-bottom: none; }
+  .jadual-bungkus { overflow-x: auto; border-radius: 12px; }
+
+  .kosong {
+    border: 1px dashed var(--border);
+    border-radius: 12px;
+    padding: 2rem 1.25rem;
+    text-align: center;
+    color: var(--muted);
+    background: var(--surface);
+  }
+  .kosong strong { color: var(--fg); display: block; margin-bottom: 0.3rem; font-family: var(--font-display); }
+
+  form.borang {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+    margin-bottom: 1.6rem;
+  }
+  .baris-borang { display: flex; gap: 0.8rem; flex-wrap: wrap; }
+  .medan { display: flex; flex-direction: column; gap: 0.3rem; font-size: 0.82rem; font-weight: 600; flex: 1; min-width: 140px; }
+  .medan input, .medan select {
+    font: inherit;
+    padding: 0.5rem 0.6rem;
+    border: 1px solid var(--border);
+    border-radius: 7px;
+    background: var(--bg);
+    color: var(--fg);
+    min-width: 0;
+  }
+  .medan.lebar-penuh { flex-basis: 100%; }
+
+  button.btn {
+    font: inherit;
+    font-weight: 700;
+    padding: 0.55rem 1.1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--fg);
+    cursor: pointer;
+    width: fit-content;
+  }
+  button.btn-utama { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+  button.btn-kecil { padding: 0.3rem 0.6rem; font-size: 0.78rem; border-radius: 6px; }
+  button.btn-bahaya { color: var(--negative); border-color: var(--negative); background: transparent; }
+  button:disabled { opacity: 0.5; cursor: not-allowed; }
+  .tab-bar { display: flex; gap: 0.5rem; margin-bottom: 1.2rem; flex-wrap: wrap; }
+
+  .baris-tindakan { display: flex; gap: 0.4rem; }
+  .catatan-status { font-size: 0.82rem; color: var(--muted); margin-top: -0.4rem; }
+  .catatan-ralat { font-size: 0.82rem; color: var(--negative); margin-top: -0.4rem; }
+
+  @media (max-width: 480px) {
+    header.topnav { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+
+<header class="topnav">
+  <div class="brand">📈 SahamAku</div>
+  <nav id="nav">
+    <button data-route="dashboard">Dashboard</button>
+    <button data-route="transaksi">Transaksi</button>
+    <button data-route="modal">Modal</button>
+    <button data-route="import">Import CSV</button>
+    <button data-route="laporan">Laporan Untung/Rugi</button>
+    <button data-route="data">Data &amp; Backup</button>
+  </nav>
+</header>
+
+<main>
+  <section id="view-dashboard">
+    <h1 style="margin-bottom:1rem;">Dashboard Portfolio</h1>
+    <div id="dashboard-status" class="catatan-status">Memuatkan data…</div>
+    <div id="dashboard-content" hidden>
+      <div class="grid-ringkasan">
+        <div class="kad">
+          <span class="kad-label">Jumlah Modal Bersih (Dimasukkan)</span>
+          <span class="kad-nilai num" id="d-modal">RM 0.00</span>
+        </div>
+        <div class="kad">
+          <span class="kad-label">Anggaran Baki Tunai</span>
+          <span class="kad-nilai num" id="d-baki-tunai">RM 0.00</span>
+        </div>
+      </div>
+      <p class="catatan-status" style="margin-top:-1rem;margin-bottom:0.4rem;">Anggaran Baki Tunai = Jumlah Modal Bersih − perbelanjaan bersih beli/jual saham <strong>semua pasaran</strong> (transaksi pasaran asing ditukar ke RM guna Kadar Tukaran yang direkod pada transaksi tu sendiri). Kemaskini di halaman <a href="#modal">Modal</a> setiap kali anda masuk/keluarkan wang dari akaun pelaburan.</p>
+      <p class="catatan-status" id="d-kadar-amaran" style="margin-top:0;color:#b35900;" hidden></p>
+      <div class="kosong" id="d-tiada-transaksi" hidden><strong>Tiada pegangan saham lagi.</strong>Tambah transaksi pertama anda di halaman <a href="#transaksi">Transaksi</a>.</div>
+      <div class="tab-bar" id="d-pasaran-tab-bar"></div>
+      <div id="d-pasaran-wrap"></div>
+    </div>
+  </section>
+
+  <section id="view-transaksi" hidden>
+    <h1 style="margin-bottom:1rem;">Rekod Transaksi</h1>
+    <form class="borang" id="form-tambah">
+      <h3>Tambah Transaksi</h3>
+      <div class="baris-borang">
+        <label class="medan">Tarikh
+          <input type="date" name="tarikh" id="f-tarikh" required>
+        </label>
+        <label class="medan">Masa (pilihan)
+          <input type="time" name="masa" id="f-masa" step="1">
+        </label>
+        <label class="medan">Pasaran
+          <select name="pasaran" id="f-pasaran">
+            <option value="MY">MY (RM)</option>
+            <option value="US">US (USD)</option>
+          </select>
+        </label>
+        <label class="medan">Kaunter
+          <input type="text" name="kaunter" id="f-kaunter" placeholder="Cth: MAYBANK" required>
+        </label>
+        <label class="medan">Jenis
+          <select name="jenis" id="f-jenis" required>
+            <option value="BELI">BELI</option>
+            <option value="JUAL">JUAL</option>
+          </select>
+        </label>
+      </div>
+      <div class="baris-borang">
+        <label class="medan">Kuantiti (unit)
+          <input type="number" name="kuantiti" id="f-kuantiti" min="1" step="1" required>
+        </label>
+        <label class="medan">Harga / Unit (ikut pasaran)
+          <input type="number" name="harga_seunit" id="f-harga" min="0" step="0.0001" required>
+        </label>
+        <label class="medan" id="f-kadar-wrap" hidden>Kadar Tukaran (ke RM)
+          <input type="number" name="kadar_tukaran" id="f-kadar-tukaran" min="0.000001" step="0.000001" placeholder="cth 4.2650">
+        </label>
+      </div>
+      <div class="baris-borang">
+        <label class="medan">Komisen
+          <input type="number" name="komisen" id="f-komisen" min="0" step="0.01" value="0">
+        </label>
+        <label class="medan">Yuran Platform
+          <input type="number" name="yuran_platform" id="f-yuran-platform" min="0" step="0.01" value="0">
+        </label>
+        <label class="medan">Yuran Kliring
+          <input type="number" name="yuran_kliring" id="f-yuran-kliring" min="0" step="0.01" value="0">
+        </label>
+      </div>
+      <div class="baris-borang">
+        <label class="medan">Duti Setem
+          <input type="number" name="duti_setem" id="f-duti-setem" min="0" step="0.01" value="0">
+        </label>
+        <label class="medan">SST
+          <input type="number" name="sst" id="f-sst" min="0" step="0.01" value="0">
+        </label>
+        <label class="medan">Caj Lain
+          <input type="number" name="caj_lain" id="f-caj-lain" min="0" step="0.01" value="0">
+        </label>
+      </div>
+      <div class="baris-borang">
+        <label class="medan lebar-penuh">Nota (pilihan)
+          <input type="text" name="nota" id="f-nota" placeholder="Nota tambahan">
+        </label>
+      </div>
+      <div id="form-ralat" class="catatan-ralat" hidden></div>
+      <p class="catatan-status" style="margin:0;">Isi Masa jika ada lebih satu transaksi kaunter sama pada tarikh sama (cth: beli & jual hari sama) — ini pastikan turutan BELI/JUAL dikira betul.</p>
+      <p class="catatan-status" id="f-kuantiti-catatan" style="margin:0;">Pasaran MY: kuantiti mesti unit bulat. Tukar ke US untuk benarkan kuantiti pecahan (saham serpihan).</p>
+      <p class="catatan-status" id="f-kadar-catatan" style="margin:0;" hidden>Kadar Tukaran (pilihan): isi kadar sebenar waktu transaksi ni berlaku (cth 1 USD = RM4.2650) supaya Laporan Untung/Rugi boleh papar jumlah keseluruhan gabungan dalam RM.</p>
+      <button type="submit" class="btn btn-utama" id="f-submit">Simpan Transaksi</button>
+    </form>
+
+    <h2 style="margin-bottom:0.8rem;">Senarai Transaksi</h2>
+    <div class="tab-bar" id="t-pasaran-tab-bar"></div>
+    <form class="borang" id="form-tapis-transaksi" style="flex-direction:row;align-items:flex-end;flex-wrap:wrap;">
+      <label class="medan">Dari Tarikh
+        <input type="date" id="tp-dari">
+      </label>
+      <label class="medan">Hingga Tarikh
+        <input type="date" id="tp-hingga">
+      </label>
+      <label class="medan">Kaunter
+        <select id="tp-kaunter"><option value="">Semua Kaunter</option></select>
+      </label>
+      <label class="medan">Pasaran
+        <select id="tp-pasaran"><option value="">Semua Pasaran</option></select>
+      </label>
+      <button type="submit" class="btn btn-utama">Tapis</button>
+      <button type="button" class="btn" id="tp-kosong">Kosongkan Tapisan</button>
+    </form>
+    <p class="catatan-status" style="margin-top:-0.6rem;">Tapisan lalai: bulan semasa. Klik "Kosongkan Tapisan" untuk lihat semua transaksi.</p>
+    <div id="t-status" class="catatan-status">Memuatkan data…</div>
+    <div id="t-wrap" hidden></div>
+  </section>
+
+  <section id="view-modal" hidden>
+    <h1 style="margin-bottom:1rem;">Modal Pelaburan</h1>
+    <p class="catatan-status" style="margin-top:0;">Rekod wang yang dimasukkan (deposit) atau dikeluarkan (withdraw) daripada akaun pelaburan anda. Digunakan untuk kira Anggaran Baki Tunai di Dashboard.</p>
+
+    <div class="grid-ringkasan">
+      <div class="kad">
+        <span class="kad-label">Jumlah Keseluruhan Deposit</span>
+        <span class="kad-nilai positif num" id="mo-deposit">RM 0.00</span>
+        <span class="kad-catatan">Jumlah kasar wang MASUK (sebelum tolak pengeluaran)</span>
+      </div>
+      <div class="kad">
+        <span class="kad-label">Jumlah Keseluruhan Pengeluaran</span>
+        <span class="kad-nilai negatif num" id="mo-pengeluaran">RM 0.00</span>
+        <span class="kad-catatan">Jumlah kasar wang KELUAR (withdraw)</span>
+      </div>
+      <div class="kad">
+        <span class="kad-label">Jumlah Modal Bersih</span>
+        <span class="kad-nilai num" id="mo-bersih">RM 0.00</span>
+        <span class="kad-catatan">Deposit − Pengeluaran</span>
+      </div>
+      <div class="kad">
+        <span class="kad-label">Nilai Pelaburan Semasa</span>
+        <span class="kad-nilai num" id="mo-pelaburan">RM 0.00</span>
+        <span class="kad-catatan">Jumlah kos saham pasaran MY (RM) sahaja yang sedang dipegang (lihat Dashboard)</span>
+      </div>
+      <div class="kad">
+        <span class="kad-label">Baki Tunai (Tidak Digunakan utk Saham)</span>
+        <span class="kad-nilai num" id="mo-baki-tunai">RM 0.00</span>
+        <span class="kad-catatan" id="mo-baki-tunai-catatan">Modal Bersih − perbelanjaan bersih semua pasaran (pasaran asing ditukar ke RM guna Kadar Tukaran transaksi).</span>
+      </div>
+    </div>
+
+    <form class="borang" id="form-tambah-modal">
+      <h3>Tambah Rekod Modal</h3>
+      <div class="baris-borang">
+        <label class="medan">Tarikh
+          <input type="date" name="tarikh" id="m-tarikh" required>
+        </label>
+        <label class="medan">Jenis
+          <select name="jenis" id="m-jenis" required>
+            <option value="MASUK">MASUK (deposit)</option>
+            <option value="KELUAR">KELUAR (withdraw)</option>
+          </select>
+        </label>
+        <label class="medan">Jumlah (RM)
+          <input type="number" name="jumlah" id="m-jumlah" min="0.01" step="0.01" required>
+        </label>
+      </div>
+      <div class="baris-borang">
+        <label class="medan lebar-penuh">Nota (pilihan)
+          <input type="text" name="nota" id="m-nota" placeholder="Cth: Deposit awal, pindahan bank">
+        </label>
+      </div>
+      <div id="form-modal-ralat" class="catatan-ralat" hidden></div>
+      <button type="submit" class="btn btn-utama" id="m-submit">Simpan</button>
+    </form>
+
+    <h2 style="margin-bottom:0.8rem;">Senarai Rekod Modal</h2>
+    <div id="m-status" class="catatan-status">Memuatkan data…</div>
+    <div id="m-wrap" hidden></div>
+  </section>
+
+  <section id="view-import" hidden>
+    <h1 style="margin-bottom:1rem;">Import Transaksi dari CSV moomoo</h1>
+    <div class="kad" style="margin-bottom:1.6rem;">
+      <h3 style="margin-bottom:0.4rem;">Cara eksport fail CSV dari moomoo</h3>
+      <ol style="margin:0 0 1rem;padding-left:1.2rem;line-height:1.7;">
+        <li>Buka apl/portal moomoo → pergi ke tab <strong>Order History</strong></li>
+        <li>Pilih sub-tab <strong>Securities</strong></li>
+        <li>Tetapkan penapis Market ke <strong>"All Markets"</strong> (supaya transaksi MY &amp; US semua
+          disertakan dalam satu fail) dan tetapkan julat tarikh yang diperlukan</li>
+        <li>Klik butang <strong>Export</strong> (ikon muat turun, penjuru kanan atas)</li>
+        <li>Pilih <strong>"Export All Tables"</strong> daripada menu yang keluar</li>
+        <li>Fail CSV akan dimuat turun ke peranti anda — muat naik terus fail itu di sini</li>
+      </ol>
+      <div class="baris-borang">
+        <label class="medan lebar-penuh">Fail CSV
+          <input type="file" id="csv-fail" accept=".csv">
+        </label>
+      </div>
+      <div id="csv-ralat" class="catatan-ralat" hidden></div>
+      <button type="button" class="btn btn-utama" id="csv-pratonton-btn" style="margin-top:0.8rem;">Pratonton Import</button>
+    </div>
+
+    <div id="csv-pratonton-wrap" hidden>
+      <h2 style="margin-bottom:0.4rem;">Pratonton Import</h2>
+      <p class="catatan-status">Nyahtanda baris yang anda tak nak import, kemudian klik "Sahkan Import".</p>
+      <p class="catatan-status" id="csv-pendua-notis" hidden></p>
+      <p class="catatan-status">Baris bertanda <span class="pill pill-jual">⚠ SEMAK TARIKH</span> ialah pesanan jenis <strong>Stop/Trigger</strong> — tarikhnya ialah masa pesanan <em>diletak</em>, bukan semestinya masa ia <em>dipenuhi</em>. Semak &amp; betulkan terus di medan tarikh jika perlu.</p>
+      <p class="catatan-status">Lajur <strong>Masa</strong> digunakan untuk tentukan turutan BELI/JUAL yang betul bila ada lebih satu transaksi kaunter sama pada tarikh sama — tak perlu diubah melainkan anda tahu ia tak tepat.</p>
+      <div id="csv-pratonton-jadual"></div>
+      <div class="baris-tindakan" style="margin-top:1rem;">
+        <button type="button" class="btn btn-utama" id="csv-sahkan-btn">Sahkan Import</button>
+        <button type="button" class="btn" id="csv-batal-btn">Batal</button>
+      </div>
+      <div id="csv-progres" class="catatan-status" hidden></div>
+    </div>
+  </section>
+
+  <section id="view-laporan" hidden>
+    <h1 style="margin-bottom:0.4rem;">Laporan Untung/Rugi (Direalisasi)</h1>
+    <p class="catatan-status" style="margin-top:0;" id="l-intro">Ringkasan untung/rugi sebenar daripada transaksi JUAL yang telah anda rekodkan — bukan anggaran nilai pasaran semasa bagi saham yang masih anda pegang (lihat Dashboard untuk itu).</p>
+    <div id="l-status" class="catatan-status">Memuatkan data…</div>
+    <div id="l-content" hidden>
+      <div class="kosong" id="l-tiada-jualan" hidden><strong>Tiada rekod jualan lagi.</strong>Untung/rugi akan terpapar di sini selepas anda rekod transaksi JUAL.</div>
+      <div class="kad" id="l-gabungan-wrap" style="margin-bottom:1.5rem;max-width:28rem;" hidden>
+        <span class="kad-label">Jumlah Keseluruhan Untung/Rugi (RM, gabungan semua pasaran)</span>
+        <span class="kad-nilai num" id="l-gabungan-nilai">RM 0.00</span>
+        <span class="kad-catatan" id="l-gabungan-catatan"></span>
+      </div>
+      <div class="tab-bar" id="l-pasaran-tab-bar"></div>
+      <div id="l-pasaran-wrap"></div>
+    </div>
+  </section>
+
+  <section id="view-data" hidden>
+    <h1 style="margin-bottom:1rem;">Data &amp; Backup</h1>
+    <div class="kad" style="margin-bottom:1.5rem;">
+      <p style="margin-top:0;">
+        <strong>Data disimpan secara tempatan di peranti/browser ini sahaja</strong> (IndexedDB), bukan di server/cloud.
+        Ini bermaksud data <strong>tidak sync</strong> merentasi peranti lain, dan akan <strong>hilang kekal</strong> kalau
+        anda "Clear browsing data", padam app ni, atau tukar peranti — melainkan anda ada salinan Eksport.
+      </p>
+      <p class="catatan-status" style="margin:0;">Disyorkan: Eksport salinan backup secara berkala (cth selepas setiap import/kemaskini besar).</p>
+    </div>
+
+    <section class="kad" style="margin-bottom:1.5rem;">
+      <h2>Eksport Backup</h2>
+      <p class="catatan-status" style="margin-top:0;">Muat turun semua transaksi &amp; rekod modal sebagai satu fail JSON.</p>
+      <button type="button" class="btn btn-utama" id="data-eksport-btn">Muat Turun Backup (.json)</button>
+      <p class="catatan-status" id="data-eksport-status" style="margin:0.6rem 0 0;"></p>
+    </section>
+
+    <section class="kad">
+      <h2>Import Backup</h2>
+      <p class="catatan-status" style="margin-top:0;">
+        Muat naik fail backup .json yang dieksport dari sistem ni sebelum ini. Rekod dengan ID sama yang
+        sedia ada akan <strong>ditulis ganti</strong>; rekod baharu akan <strong>ditambah</strong> — tiada data sedia ada dipadam.
+      </p>
+      <input type="file" id="data-import-fail" accept=".json" style="margin-bottom:0.8rem;display:block;">
+      <button type="button" class="btn btn-utama" id="data-import-btn">Import Backup</button>
+      <p class="catatan-status" id="data-import-status" style="margin:0.6rem 0 0;"></p>
+    </section>
+  </section>
+</main>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+<script>
+(() => {
+  "use strict";
+
+  // Lajur pecahan fee. Dok lama (sebelum ciri ni) hanya ada "caj" tunggal -
+  // jumlahCaj() jatuh balik kepada "caj" bila tiada satu pun lajur pecahan wujud.
+  const LAJUR_FEE = ["komisen", "yuran_platform", "yuran_kliring", "duti_setem", "sst", "caj_lain"];
+  const PASARAN_MATA_WANG_LALAI = { MY: "MYR", US: "USD" };
+  function jumlahCaj(t) {
+    const adaPecahan = LAJUR_FEE.some((l) => t[l] !== undefined);
+    if (adaPecahan) {
+      return LAJUR_FEE.reduce((acc, l) => acc + (t[l] || 0), 0);
+    }
+    return t.caj || 0;
+  }
+
+  // ---------- Pengiraan kos purata wajaran (sama logik dengan portfolio.py) ----------
+  function kiraLedger(senarai) {
+    const state = {};
+    const ledger = [];
+    for (const t of senarai) {
+      const caj = jumlahCaj(t);
+      const s = state[t.kaunter] || (state[t.kaunter] = { baki: 0, jumlahKos: 0 });
+      const kosPurataSebelum = s.baki > 0 ? s.jumlahKos / s.baki : 0;
+      let untungRugi = null;
+      if (t.jenis === "BELI") {
+        const kosMasuk = t.kuantiti * t.harga_seunit + caj;
+        s.baki += t.kuantiti;
+        s.jumlahKos += kosMasuk;
+      } else {
+        const hasilJualan = t.kuantiti * t.harga_seunit - caj;
+        const kosAsas = kosPurataSebelum * t.kuantiti;
+        untungRugi = hasilJualan - kosAsas;
+        s.baki -= t.kuantiti;
+        s.jumlahKos -= kosAsas;
+        if (s.baki <= 0) { s.baki = 0; s.jumlahKos = 0; }
+      }
+      const kosPurataSelepas = s.baki > 0 ? s.jumlahKos / s.baki : 0;
+      ledger.push(Object.assign({}, t, {
+        caj, kosPurataSebelum, untungRugi,
+        bakiSelepas: s.baki, kosPurataSelepas,
+      }));
+    }
+    const portfolio = {};
+    for (const kaunter of Object.keys(state)) {
+      const s = state[kaunter];
+      if (s.baki > 0) {
+        portfolio[kaunter] = { baki: s.baki, kosPurata: s.jumlahKos / s.baki, nilaiKos: s.jumlahKos };
+      }
+    }
+    return { ledger, portfolio };
+  }
+
+  function simbolMataWang(kod) {
+    return kod === "MYR" ? "RM" : (kod || "");
+  }
+
+  // Bursa Malaysia (MY) berdagang dalam unit bulat sahaja; pasaran lain (cth US)
+  // boleh berdagang pecahan (saham serpihan) - bundarkan hanya utk pasaran MY.
+  function sahkanKuantiti(pasaran, kuantiti) {
+    const n = parseFloat(kuantiti);
+    return pasaran === "MY" ? Math.round(n) : n;
+  }
+
+  // Kadar tukaran (1 unit mata wang asing = RM?) diisi manual oleh pengguna
+  // utk transaksi pasaran bukan-MY, supaya nilai RM sebenar setiap transaksi
+  // boleh dikira (utk Laporan Untung/Rugi gabungan). MY tak perlukan ini.
+  function bacaKadarTukaran(pasaran, nilaiMentah) {
+    if (pasaran === "MY") return null;
+    const nilai = (nilaiMentah || "").toString().trim();
+    if (!nilai) return null;
+    const kadar = parseFloat(nilai);
+    return isFinite(kadar) && kadar > 0 ? kadar : null;
+  }
+
+  // Kira ledger & portfolio BERASINGAN bagi setiap pasaran (MY/US/...) supaya kos
+  // purata & baki tak bercampur mata wang, kemudian gabung semula ledger utk paparan.
+  function kiraLedgerIkutPasaran(senarai) {
+    const pasaranSet = [...new Set(senarai.map((t) => t.pasaran || "MY"))].sort();
+    let ledgerGabungan = [];
+    const portfolioIkutPasaran = {};
+    for (const p of pasaranSet) {
+      const txP = senarai.filter((t) => (t.pasaran || "MY") === p);
+      const { ledger, portfolio } = kiraLedger(txP);
+      ledgerGabungan = ledgerGabungan.concat(ledger);
+      portfolioIkutPasaran[p] = portfolio;
+    }
+    return { ledger: ledgerGabungan, portfolioIkutPasaran };
+  }
+
+  // ---------- Modal bersih & anggaran baki tunai (sama logik dgn portfolio.kira_tunai) ----------
+  function kiraTunai(senaraiTransaksi, senaraiModal) {
+    let jumlahModal = 0;
+    for (const m of senaraiModal) {
+      jumlahModal += m.jenis === "MASUK" ? m.jumlah : -m.jumlah;
+    }
+    let perbelanjaanBersih = 0;
+    for (const t of senaraiTransaksi) {
+      const caj = jumlahCaj(t);
+      if (t.jenis === "BELI") {
+        perbelanjaanBersih += t.kuantiti * t.harga_seunit + caj;
+      } else {
+        perbelanjaanBersih -= t.kuantiti * t.harga_seunit - caj;
+      }
+    }
+    return { jumlahModal, bakiTunai: jumlahModal - perbelanjaanBersih };
+  }
+
+  // Sama seperti kiraTunai(), tapi kira perbelanjaan bersih MERENTASI SEMUA
+  // pasaran (bukan MY sahaja) - transaksi pasaran asing ditukar ke RM guna
+  // kadar_tukaran yang direkod pada transaksi itu sendiri. Transaksi pasaran
+  // asing tanpa kadar_tukaran DIKECUALIKAN (bilanganTiadaKadar dikira
+  // berasingan supaya UI boleh beri amaran baki tak lengkap).
+  function kiraTunaiGabungan(senaraiTransaksi, senaraiModal) {
+    let jumlahModal = 0;
+    for (const m of senaraiModal) {
+      jumlahModal += m.jenis === "MASUK" ? m.jumlah : -m.jumlah;
+    }
+    let perbelanjaanBersihRm = 0;
+    let bilanganTiadaKadar = 0;
+    for (const t of senaraiTransaksi) {
+      const caj = jumlahCaj(t);
+      const amaunAsal = t.kuantiti * t.harga_seunit + (t.jenis === "BELI" ? caj : -caj);
+      let amaunRm;
+      if ((t.pasaran || "MY") === "MY") {
+        amaunRm = amaunAsal;
+      } else if (t.kadar_tukaran) {
+        amaunRm = amaunAsal * t.kadar_tukaran;
+      } else {
+        bilanganTiadaKadar++;
+        continue;
+      }
+      perbelanjaanBersihRm += t.jenis === "BELI" ? amaunRm : -amaunRm;
+    }
+    return { jumlahModal, bakiTunai: jumlahModal - perbelanjaanBersihRm, bilanganTiadaKadar };
+  }
+
+  // ---------- Util format ----------
+  // Nota: fmtRM TIDAK sertakan label mata wang (angka sahaja) - sebab satu sistem
+  // kini pegang pelbagai pasaran/mata wang (MY=RM, US=USD, ...). Setiap pemanggil
+  // kena sertakan simbol mata wang sendiri (cth `${simbol} ${fmtRM(n)}`) atau
+  // "RM " secara eksplisit utk nilai yang memang khusus pasaran MY (cth Modal).
+  const fmtRM = (n) => (Math.round(n * 100) / 100).toLocaleString("ms-MY", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const fmtUnit = (n) => n.toLocaleString("ms-MY", { maximumFractionDigits: 6 });
+  const fmtKos = (n) => (Math.round(n * 10000) / 10000).toLocaleString("ms-MY", { minimumFractionDigits: 4, maximumFractionDigits: 4 });
+  const esc = (s) => String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+
+  // ---------- Routing ----------
+  const ROUTES = ["dashboard", "transaksi", "modal", "import", "laporan", "data"];
+  function currentRoute() {
+    const h = (location.hash || "").replace("#", "");
+    return ROUTES.includes(h) ? h : "dashboard";
+  }
+  function renderRoute() {
+    const r = currentRoute();
+    for (const name of ROUTES) {
+      document.getElementById("view-" + name).hidden = name !== r;
+    }
+    document.querySelectorAll("#nav button").forEach((b) => {
+      b.setAttribute("aria-current", b.dataset.route === r ? "true" : "false");
+    });
+  }
+  document.getElementById("nav").addEventListener("click", (e) => {
+    const btn = e.target.closest("button[data-route]");
+    if (!btn) return;
+    location.hash = "#" + btn.dataset.route;
+  });
+  window.addEventListener("hashchange", renderRoute);
+
+  // ---------- State ----------
+  let semuaTransaksi = []; // {id, tarikh, kaunter, jenis, kuantiti, harga_seunit, caj, nota, created_at}
+  let semuaModal = []; // {id, tarikh, jenis, jumlah, nota, created_at}
+  let dbNs = null;
+  let editingId = null;
+  let confirmingDeleteId = null;
+  let editingModalId = null;
+  let dashboardPasaranAktif = null;
+  let laporanPasaranAktif = null;
+  let confirmingDeleteModalId = null;
+  let csvBarisPratonton = [];
+
+  // ---------- Storan tempatan (IndexedDB) ----------
+  // Data awal (migrasi sekali sahaja, hanya jika storan tempatan masih kosong)
+  // - diambil daripada data sedia ada pada masa ciri storan tempatan ini dibina.
+  const SEED_DATA_MIGRASI = {"transaksi":[],"modal":[]}; // Tiada data awal disertakan - import backup JSON anda selepas buka kali pertama.
+
+  const NAMA_DB_LOKAL = "sahamaku_local_v1";
+
+  function bukaIndexedDB() {
+    return new Promise((resolve, reject) => {
+      if (!window.indexedDB) { reject(new Error("IndexedDB tidak disokong pada browser ini.")); return; }
+      const req = indexedDB.open(NAMA_DB_LOKAL, 1);
+      req.onupgradeneeded = () => {
+        const db = req.result;
+        if (!db.objectStoreNames.contains("transaksi")) db.createObjectStore("transaksi", { keyPath: "id" });
+        if (!db.objectStoreNames.contains("modal")) db.createObjectStore("modal", { keyPath: "id" });
+      };
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function buatIdBaharuLokal() {
+    return "l" + Date.now().toString(36) + Math.random().toString(36).slice(2, 10);
+  }
+
+  function semuaDariStoreLokal(idb, nama) {
+    return new Promise((resolve, reject) => {
+      const req = idb.transaction(nama, "readonly").objectStore(nama).getAll();
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function satuDariStoreLokal(idb, nama, id) {
+    return new Promise((resolve, reject) => {
+      const req = idb.transaction(nama, "readonly").objectStore(nama).get(id);
+      req.onsuccess = () => resolve(req.result);
+      req.onerror = () => reject(req.error);
+    });
+  }
+
+  function tulisStoreLokal(idb, nama, fn) {
+    return new Promise((resolve, reject) => {
+      const tx = idb.transaction(nama, "readwrite");
+      const store = tx.objectStore(nama);
+      fn(store);
+      tx.oncomplete = () => resolve();
+      tx.onerror = () => reject(tx.error);
+    });
+  }
+
+  // Bina objek berbentuk sama seperti ruang nama storan awan Firestore-ish
+  // (collection/doc/add/update/delete/onSnapshot) supaya semua titik panggilan dbNs.* sedia ada
+  // dalam skrip ini tak perlu diubah langsung.
+  function buatDbNsLokal(idb) {
+    const pendengar = { transaksi: [], modal: [] };
+
+    async function maklumPendengar(nama) {
+      let rekod;
+      try {
+        rekod = await semuaDariStoreLokal(idb, nama);
+      } catch (e) {
+        pendengar[nama].forEach(({ onErr }) => onErr && onErr(e));
+        return;
+      }
+      const snap = {
+        docs: rekod.map((r) => {
+          const { id, ...rest } = r;
+          return { id, data: () => rest };
+        }),
+      };
+      pendengar[nama].forEach(({ onNext }) => onNext(snap));
+    }
+
+    return {
+      _idb: idb,
+      collection(nama) {
+        return {
+          onSnapshot(onNext, onErr) {
+            pendengar[nama].push({ onNext, onErr });
+            maklumPendengar(nama);
+          },
+          async add(data) {
+            const id = buatIdBaharuLokal();
+            await tulisStoreLokal(idb, nama, (store) => store.add(Object.assign({ id }, data)));
+            await maklumPendengar(nama);
+            return { id };
+          },
+          doc(id) {
+            return {
+              async update(data) {
+                const existing = (await satuDariStoreLokal(idb, nama, id)) || { id };
+                const merged = Object.assign({}, existing, data, { id });
+                await tulisStoreLokal(idb, nama, (store) => store.put(merged));
+                await maklumPendengar(nama);
+              },
+              async delete() {
+                await tulisStoreLokal(idb, nama, (store) => store.delete(id));
+                await maklumPendengar(nama);
+              },
+            };
+          },
+        };
+      },
+    };
+  }
+
+  async function semaikDataAwalJikaKosong(idb) {
+    const [txSediaAda, modalSediaAda] = await Promise.all([
+      semuaDariStoreLokal(idb, "transaksi"),
+      semuaDariStoreLokal(idb, "modal"),
+    ]);
+    if (txSediaAda.length === 0 && modalSediaAda.length === 0) {
+      await tulisStoreLokal(idb, "transaksi", (store) => {
+        for (const t of SEED_DATA_MIGRASI.transaksi || []) store.put(t);
+      });
+      await tulisStoreLokal(idb, "modal", (store) => {
+        for (const m of SEED_DATA_MIGRASI.modal || []) store.put(m);
+      });
+    }
+  }
+
+  function susunTransaksi(list) {
+    return [...list].sort((a, b) => {
+      if (a.tarikh !== b.tarikh) return a.tarikh < b.tarikh ? -1 : 1;
+      if ((a.masa || "") !== (b.masa || "")) return (a.masa || "") < (b.masa || "") ? -1 : 1;
+      return (a.created_at || "") < (b.created_at || "") ? -1 : 1;
+    });
+  }
+
+  function susunModal(list) {
+    return [...list].sort((a, b) => {
+      if (a.tarikh !== b.tarikh) return a.tarikh < b.tarikh ? -1 : 1;
+      return (a.created_at || "") < (b.created_at || "") ? -1 : 1;
+    });
+  }
+
+  function renderSemua() {
+    renderDashboard();
+    renderTransaksiList();
+    renderModalList();
+    renderLaporan();
+  }
+
+  // ---------- Dashboard ----------
+  function renderDashboard() {
+    const tx = susunTransaksi(semuaTransaksi);
+    const { ledger, portfolioIkutPasaran } = kiraLedgerIkutPasaran(tx);
+    const { jumlahModal, bakiTunai, bilanganTiadaKadar } = kiraTunaiGabungan(tx, semuaModal);
+
+    const elModal = document.getElementById("d-modal");
+    elModal.textContent = "RM " + fmtRM(jumlahModal);
+    elModal.className = "kad-nilai num " + (jumlahModal >= 0 ? "positif" : "negatif");
+    const elBaki = document.getElementById("d-baki-tunai");
+    elBaki.textContent = "RM " + fmtRM(bakiTunai);
+    elBaki.className = "kad-nilai num " + (bakiTunai >= 0 ? "positif" : "negatif");
+    const elKadarAmaran = document.getElementById("d-kadar-amaran");
+    if (bilanganTiadaKadar > 0) {
+      elKadarAmaran.textContent = `⚠ ${bilanganTiadaKadar} transaksi pasaran asing tiada Kadar Tukaran direkod — tidak termasuk dalam Anggaran Baki Tunai di atas, jadi baki ni mungkin tak lengkap. Edit transaksi berkenaan utk isi kadar tukaran.`;
+      elKadarAmaran.hidden = false;
+    } else {
+      elKadarAmaran.hidden = true;
+    }
+
+    const tabBar = document.getElementById("d-pasaran-tab-bar");
+    const wrap = document.getElementById("d-pasaran-wrap");
+    // Papar tab MY & US sentiasa (walaupun tiada transaksi lagi utk pasaran tu),
+    // plus mana-mana pasaran lain yang ada dalam data.
+    const pasaranList = [...new Set([...Object.keys(PASARAN_MATA_WANG_LALAI), ...Object.keys(portfolioIkutPasaran)])].sort();
+    document.getElementById("d-tiada-transaksi").hidden = semuaTransaksi.length !== 0;
+    if (!pasaranList.includes(dashboardPasaranAktif)) {
+      dashboardPasaranAktif = pasaranList[0];
+    }
+
+    tabBar.innerHTML = pasaranList.map((p) => {
+      const simbolTab = simbolMataWang((semuaTransaksi.find((t) => t.pasaran === p) || {}).mata_wang || PASARAN_MATA_WANG_LALAI[p] || "");
+      return `<button type="button" class="btn ${p === dashboardPasaranAktif ? "btn-utama" : ""}" data-tab-pasaran="${esc(p)}">Pasaran ${esc(p)} (${esc(simbolTab)})</button>`;
+    }).join("");
+    tabBar.querySelectorAll("[data-tab-pasaran]").forEach((b) => b.addEventListener("click", () => {
+      dashboardPasaranAktif = b.dataset.tabPasaran;
+      renderDashboard();
+    }));
+
+    wrap.innerHTML = pasaranList.map((p) => {
+      const portfolio = portfolioIkutPasaran[p] || {};
+      const kaunterList = Object.keys(portfolio).sort();
+      const ledgerP = ledger.filter((b) => (b.pasaran || "MY") === p);
+      const jumlahUntungRugi = ledgerP.reduce((acc, b) => acc + (b.untungRugi ?? 0), 0);
+      const jumlahNilaiKos = kaunterList.reduce((acc, k) => acc + portfolio[k].nilaiKos, 0);
+      const simbol = simbolMataWang((ledgerP[0] && ledgerP[0].mata_wang) || (semuaTransaksi.find((t) => t.pasaran === p) || {}).mata_wang || PASARAN_MATA_WANG_LALAI[p] || "");
+      const adaTransaksi = semuaTransaksi.some((t) => (t.pasaran || "MY") === p);
+
+      const jadualHtml = kaunterList.length === 0
+        ? `<p class="kosong">${adaTransaksi ? "Tiada pegangan semasa untuk pasaran ini (semua sudah dijual)." : `Belum ada transaksi direkod untuk pasaran ${esc(p)} lagi. Tambah di halaman <a href="#transaksi">Transaksi</a>.`}</p>`
+        : `<div class="jadual-bungkus"><table class="jadual">
+             <thead><tr><th>Kaunter</th><th>Baki Unit</th><th>Kos Purata / Unit</th><th>Jumlah Nilai Kos</th></tr></thead>
+             <tbody>
+               ${kaunterList.map((k) => {
+                 const pf = portfolio[k];
+                 return `<tr><td>${esc(k)}</td><td class="num">${fmtUnit(pf.baki)}</td><td class="num">${fmtKos(pf.kosPurata)}</td><td class="num">${simbol} ${fmtRM(pf.nilaiKos)}</td></tr>`;
+               }).join("")}
+             </tbody>
+           </table></div>`;
+
+      return `
+        <div data-tab-kandungan="${esc(p)}" ${p === dashboardPasaranAktif ? "" : "hidden"}>
+        <div class="grid-ringkasan">
+          <div class="kad">
+            <span class="kad-label">Bil. Kaunter Dipegang</span>
+            <span class="kad-nilai num">${kaunterList.length}</span>
+          </div>
+          <div class="kad">
+            <span class="kad-label">Jumlah Nilai Kos Pegangan</span>
+            <span class="kad-nilai num">${simbol} ${fmtRM(jumlahNilaiKos)}</span>
+          </div>
+          <div class="kad">
+            <span class="kad-label">Jumlah Untung/Rugi Direalisasi</span>
+            <span class="kad-nilai num ${jumlahUntungRugi >= 0 ? "positif" : "negatif"}">${simbol} ${fmtRM(jumlahUntungRugi)}</span>
+          </div>
+        </div>
+        ${jadualHtml}
+        </div>`;
+    }).join("");
+  }
+
+  // ---------- Transaksi: tapisan + senarai + edit + padam ----------
+  function kemaskiniOpsyenTapis(selId, nilaiList) {
+    const sel = document.getElementById(selId);
+    const semasa = sel.value;
+    const sediaAda = new Set(Array.from(sel.options).map((o) => o.value));
+    for (const v of nilaiList) {
+      if (!sediaAda.has(v)) {
+        const opt = document.createElement("option");
+        opt.value = v;
+        opt.textContent = v;
+        sel.appendChild(opt);
+      }
+    }
+    sel.value = semasa; // kekalkan pilihan sedia ada (jika masih wujud)
+  }
+  function kemaskiniPilihanKaunterTapis() {
+    kemaskiniOpsyenTapis("tp-kaunter", [...new Set(semuaTransaksi.map((t) => t.kaunter))].sort());
+    kemaskiniOpsyenTapis("tp-pasaran", [...new Set(semuaTransaksi.map((t) => t.pasaran || "MY"))].sort());
+  }
+
+  function julatBulanSemasa() {
+    const skrg = new Date();
+    const awal = new Date(skrg.getFullYear(), skrg.getMonth(), 1);
+    const akhir = new Date(skrg.getFullYear(), skrg.getMonth() + 1, 0);
+    const ke8601 = (d) => d.toISOString().slice(0, 10);
+    return [ke8601(awal), ke8601(akhir)];
+  }
+  const [bulanAwalLalai, bulanAkhirLalai] = julatBulanSemasa();
+  document.getElementById("tp-dari").value = bulanAwalLalai;
+  document.getElementById("tp-hingga").value = bulanAkhirLalai;
+
+  document.getElementById("form-tapis-transaksi").addEventListener("submit", (e) => {
+    e.preventDefault();
+    renderTransaksiList();
+  });
+  document.getElementById("tp-kosong").addEventListener("click", () => {
+    document.getElementById("tp-dari").value = "";
+    document.getElementById("tp-hingga").value = "";
+    document.getElementById("tp-kaunter").value = "";
+    document.getElementById("tp-pasaran").value = "";
+    renderTransaksiList();
+  });
+
+  function renderTransaksiList() {
+    kemaskiniPilihanKaunterTapis();
+    const fDari = document.getElementById("tp-dari").value;
+    const fHingga = document.getElementById("tp-hingga").value;
+    const fKaunter = document.getElementById("tp-kaunter").value;
+    const fPasaran = document.getElementById("tp-pasaran").value;
+    const adaTapisan = Boolean(fDari || fHingga || fKaunter || fPasaran);
+
+    const tabBarT = document.getElementById("t-pasaran-tab-bar");
+    const pasaranTabList = [...new Set([...Object.keys(PASARAN_MATA_WANG_LALAI), ...semuaTransaksi.map((t) => t.pasaran || "MY")])].sort();
+    tabBarT.innerHTML = [
+      `<button type="button" class="btn ${!fPasaran ? "btn-utama" : ""}" data-tab-pasaran="">Semua Pasaran</button>`,
+      ...pasaranTabList.map((p) => `<button type="button" class="btn ${fPasaran === p ? "btn-utama" : ""}" data-tab-pasaran="${esc(p)}">Pasaran ${esc(p)}</button>`),
+    ].join("");
+    tabBarT.querySelectorAll("[data-tab-pasaran]").forEach((b) => b.addEventListener("click", () => {
+      document.getElementById("tp-pasaran").value = b.dataset.tabPasaran;
+      renderTransaksiList();
+    }));
+
+    const { ledger } = kiraLedgerIkutPasaran(susunTransaksi(semuaTransaksi));
+    ledger.forEach((t) => { t.simbol = simbolMataWang(t.mata_wang || (t.pasaran === "MY" || !t.pasaran ? "MYR" : "")); });
+    // kiraLedgerIkutPasaran gabung ledger ikut KUMPULAN pasaran (semua MY dahulu,
+    // kemudian semua US) - kena susun SEMULA ikut tarikh/masa supaya senarai
+    // tergabung betul merentasi pasaran bila dipaparkan bersama.
+    ledger.sort((a, b) => {
+      if (a.tarikh !== b.tarikh) return a.tarikh < b.tarikh ? -1 : 1;
+      if ((a.masa || "") !== (b.masa || "")) return (a.masa || "") < (b.masa || "") ? -1 : 1;
+      return (a.created_at || "") < (b.created_at || "") ? -1 : 1;
+    });
+    ledger.reverse(); // terbaru dahulu
+    let ledgerTapis = ledger;
+    if (fDari) ledgerTapis = ledgerTapis.filter((t) => t.tarikh >= fDari);
+    if (fHingga) ledgerTapis = ledgerTapis.filter((t) => t.tarikh <= fHingga);
+    if (fKaunter) ledgerTapis = ledgerTapis.filter((t) => t.kaunter === fKaunter);
+    if (fPasaran) ledgerTapis = ledgerTapis.filter((t) => (t.pasaran || "MY") === fPasaran);
+
+    const wrap = document.getElementById("t-wrap");
+
+    if (ledgerTapis.length === 0) {
+      wrap.innerHTML = adaTapisan
+        ? `<div class="kosong"><strong>Tiada transaksi sepadan dengan tapisan ini.</strong></div>`
+        : `<div class="kosong"><strong>Tiada transaksi lagi.</strong>Guna borang di atas untuk tambah transaksi pertama.</div>`;
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div class="jadual-bungkus"><table class="jadual">
+        <thead><tr>
+          <th>Tarikh</th><th>Masa</th><th>Pasaran</th><th>Kaunter</th><th>Jenis</th><th>Kuantiti</th><th>Harga/Unit</th>
+          <th>Kadar Tukaran</th>
+          <th>Komisen</th><th>Yuran Platform</th><th>Yuran Kliring</th><th>Duti Setem</th><th>SST</th><th>Caj Lain</th>
+          <th>Jumlah Caj</th><th>Untung/Rugi</th><th>Baki Selepas</th><th></th>
+        </tr></thead>
+        <tbody>
+          ${ledgerTapis.map((t) => renderBarisTransaksi(t)).join("")}
+        </tbody>
+      </table></div>`;
+
+    wrap.querySelectorAll("[data-aksi='edit']").forEach((b) => b.addEventListener("click", () => {
+      editingId = b.dataset.id; confirmingDeleteId = null; renderTransaksiList();
+    }));
+    wrap.querySelectorAll("[data-aksi='batal-edit']").forEach((b) => b.addEventListener("click", () => {
+      editingId = null; renderTransaksiList();
+    }));
+    wrap.querySelectorAll("[data-aksi='simpan-edit']").forEach((b) => b.addEventListener("click", () => simpanEdit(b.dataset.id)));
+    wrap.querySelectorAll(".e-pasaran").forEach((sel) => sel.addEventListener("change", () => {
+      const inputKuantiti = sel.closest("tr").querySelector(".e-kuantiti");
+      const inputKadar = sel.closest("tr").querySelector(".e-kadar-tukaran");
+      if (sel.value === "MY") {
+        inputKuantiti.step = "1"; inputKuantiti.min = "1";
+        inputKadar.disabled = true; inputKadar.value = "";
+      } else {
+        inputKuantiti.step = "any"; inputKuantiti.min = "0.000001";
+        inputKadar.disabled = false;
+      }
+    }));
+    wrap.querySelectorAll("[data-aksi='padam']").forEach((b) => b.addEventListener("click", () => {
+      confirmingDeleteId = b.dataset.id; editingId = null; renderTransaksiList();
+    }));
+    wrap.querySelectorAll("[data-aksi='batal-padam']").forEach((b) => b.addEventListener("click", () => {
+      confirmingDeleteId = null; renderTransaksiList();
+    }));
+    wrap.querySelectorAll("[data-aksi='sah-padam']").forEach((b) => b.addEventListener("click", () => padamTransaksi(b.dataset.id)));
+  }
+
+  function renderBarisTransaksi(t) {
+    const simbol = t.simbol || simbolMataWang(t.mata_wang || ((t.pasaran || "MY") === "MY" ? "MYR" : ""));
+    const urHtml = t.untungRugi === null
+      ? "-"
+      : `<span class="${t.untungRugi >= 0 ? "positif" : "negatif"}">${simbol} ${fmtRM(t.untungRugi)}</span>`;
+    if (editingId === t.id) {
+      return `<tr data-row="${t.id}">
+        <td><input type="date" class="e-tarikh" value="${esc(t.tarikh)}" style="width:9.5rem"></td>
+        <td><input type="time" class="e-masa" step="1" value="${esc(t.masa || "")}" style="width:7rem"></td>
+        <td><select class="e-pasaran">
+              <option value="MY" ${(t.pasaran || "MY") === "MY" ? "selected" : ""}>MY</option>
+              <option value="US" ${t.pasaran === "US" ? "selected" : ""}>US</option>
+            </select></td>
+        <td><input type="text" class="e-kaunter" value="${esc(t.kaunter)}" style="width:7rem"></td>
+        <td><select class="e-jenis">
+              <option value="BELI" ${t.jenis === "BELI" ? "selected" : ""}>BELI</option>
+              <option value="JUAL" ${t.jenis === "JUAL" ? "selected" : ""}>JUAL</option>
+            </select></td>
+        <td><input type="number" class="e-kuantiti" min="${(t.pasaran || "MY") === "MY" ? "1" : "0.000001"}" step="${(t.pasaran || "MY") === "MY" ? "1" : "any"}" value="${t.kuantiti}" style="width:5.5rem"></td>
+        <td><input type="number" class="e-harga" min="0" step="0.0001" value="${t.harga_seunit}" style="width:6rem"></td>
+        <td><input type="number" class="e-kadar-tukaran" min="0.000001" step="0.000001" value="${t.kadar_tukaran || ""}" placeholder="cth 4.2650" style="width:5.5rem" ${(t.pasaran || "MY") === "MY" ? "disabled" : ""}></td>
+        <td><input type="number" class="e-komisen" min="0" step="0.01" value="${t.komisen || 0}" style="width:4.5rem"></td>
+        <td><input type="number" class="e-yuran-platform" min="0" step="0.01" value="${t.yuran_platform || 0}" style="width:4.5rem"></td>
+        <td><input type="number" class="e-yuran-kliring" min="0" step="0.01" value="${t.yuran_kliring || 0}" style="width:4.5rem"></td>
+        <td><input type="number" class="e-duti-setem" min="0" step="0.01" value="${t.duti_setem || 0}" style="width:4.5rem"></td>
+        <td><input type="number" class="e-sst" min="0" step="0.01" value="${t.sst || 0}" style="width:4.5rem"></td>
+        <td><input type="number" class="e-caj-lain" min="0" step="0.01" value="${t.caj_lain || 0}" style="width:4.5rem"></td>
+        <td class="num">${simbol} ${fmtRM(t.caj)}</td>
+        <td class="num">${urHtml}</td>
+        <td class="num">${fmtUnit(t.bakiSelepas)}</td>
+        <td class="baris-tindakan">
+          <button type="button" class="btn btn-kecil btn-utama" data-aksi="simpan-edit" data-id="${t.id}">Simpan</button>
+          <button type="button" class="btn btn-kecil" data-aksi="batal-edit">Batal</button>
+        </td>
+      </tr>`;
+    }
+    const tindakanHtml = confirmingDeleteId === t.id
+      ? `<span class="catatan-ralat" style="margin:0;">Padam?</span>
+         <button type="button" class="btn btn-kecil btn-bahaya" data-aksi="sah-padam" data-id="${t.id}">Ya</button>
+         <button type="button" class="btn btn-kecil" data-aksi="batal-padam">Tidak</button>`
+      : `<button type="button" class="btn btn-kecil" data-aksi="edit" data-id="${t.id}">Edit</button>
+         <button type="button" class="btn btn-kecil btn-bahaya" data-aksi="padam" data-id="${t.id}">Padam</button>`;
+    return `<tr>
+      <td>${esc(t.tarikh)}</td>
+      <td>${esc(t.masa || "-")}</td>
+      <td>${esc(t.pasaran || "MY")}</td>
+      <td>${esc(t.kaunter)}</td>
+      <td><span class="pill ${t.jenis === "BELI" ? "pill-beli" : "pill-jual"}">${t.jenis}</span></td>
+      <td class="num">${fmtUnit(t.kuantiti)}</td>
+      <td class="num">${simbol} ${fmtKos(t.harga_seunit)}</td>
+      <td class="num">${t.kadar_tukaran ? "RM " + fmtKos(t.kadar_tukaran) : "-"}</td>
+      <td class="num">${simbol} ${fmtRM(t.komisen || 0)}</td>
+      <td class="num">${simbol} ${fmtRM(t.yuran_platform || 0)}</td>
+      <td class="num">${simbol} ${fmtRM(t.yuran_kliring || 0)}</td>
+      <td class="num">${simbol} ${fmtRM(t.duti_setem || 0)}</td>
+      <td class="num">${simbol} ${fmtRM(t.sst || 0)}</td>
+      <td class="num">${simbol} ${fmtRM(t.caj_lain || 0)}</td>
+      <td class="num">${simbol} ${fmtRM(t.caj)}</td>
+      <td class="num">${urHtml}</td>
+      <td class="num">${fmtUnit(t.bakiSelepas)}</td>
+      <td class="baris-tindakan">${tindakanHtml}</td>
+    </tr>`;
+  }
+
+  async function simpanEdit(id) {
+    const row = document.querySelector(`tr[data-row="${id}"]`);
+    if (!row || !dbNs) return;
+    const pasaranBaharu = row.querySelector(".e-pasaran").value;
+    const asal = semuaTransaksi.find((t) => t.id === id);
+    const data = {
+      tarikh: row.querySelector(".e-tarikh").value,
+      masa: row.querySelector(".e-masa").value,
+      pasaran: pasaranBaharu,
+      mata_wang: PASARAN_MATA_WANG_LALAI[pasaranBaharu] || pasaranBaharu,
+      kaunter: row.querySelector(".e-kaunter").value.trim().toUpperCase(),
+      jenis: row.querySelector(".e-jenis").value,
+      kuantiti: sahkanKuantiti(pasaranBaharu, row.querySelector(".e-kuantiti").value),
+      harga_seunit: parseFloat(row.querySelector(".e-harga").value),
+      kadar_tukaran: bacaKadarTukaran(pasaranBaharu, row.querySelector(".e-kadar-tukaran").value),
+      komisen: parseFloat(row.querySelector(".e-komisen").value || "0"),
+      yuran_platform: parseFloat(row.querySelector(".e-yuran-platform").value || "0"),
+      yuran_kliring: parseFloat(row.querySelector(".e-yuran-kliring").value || "0"),
+      duti_setem: parseFloat(row.querySelector(".e-duti-setem").value || "0"),
+      sst: parseFloat(row.querySelector(".e-sst").value || "0"),
+      caj_lain: parseFloat(row.querySelector(".e-caj-lain").value || "0"),
+      nota: (asal && asal.nota) || "",
+    };
+    if (!data.tarikh || !data.kaunter || !data.kuantiti || isNaN(data.harga_seunit)) return;
+    try {
+      await dbNs.collection("transaksi").doc(id).update(data);
+      editingId = null;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function padamTransaksi(id) {
+    if (!dbNs) return;
+    try {
+      await dbNs.collection("transaksi").doc(id).delete();
+      confirmingDeleteId = null;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  // ---------- Modal: senarai + edit + padam ----------
+  function renderModalList() {
+    const list = susunModal(semuaModal).slice().reverse(); // terbaru dahulu
+
+    const jumlahDeposit = semuaModal.reduce((acc, m) => acc + (m.jenis === "MASUK" ? m.jumlah : 0), 0);
+    const jumlahPengeluaran = semuaModal.reduce((acc, m) => acc + (m.jenis === "KELUAR" ? m.jumlah : 0), 0);
+    const jumlahBersih = jumlahDeposit - jumlahPengeluaran;
+    const txSorted = susunTransaksi(semuaTransaksi);
+    const txMy = txSorted.filter((t) => (t.pasaran || "MY") === "MY");
+    const { portfolio } = kiraLedger(txMy);
+    const nilaiPelaburan = Object.values(portfolio).reduce((acc, p) => acc + p.nilaiKos, 0);
+    const { bakiTunai, bilanganTiadaKadar } = kiraTunaiGabungan(txSorted, semuaModal);
+
+    document.getElementById("mo-deposit").textContent = "RM " + fmtRM(jumlahDeposit);
+    document.getElementById("mo-pengeluaran").textContent = "RM " + fmtRM(jumlahPengeluaran);
+    const elBersih = document.getElementById("mo-bersih");
+    elBersih.textContent = "RM " + fmtRM(jumlahBersih);
+    elBersih.className = "kad-nilai num " + (jumlahBersih >= 0 ? "positif" : "negatif");
+    document.getElementById("mo-pelaburan").textContent = "RM " + fmtRM(nilaiPelaburan);
+    const elBakiTunai = document.getElementById("mo-baki-tunai");
+    elBakiTunai.textContent = "RM " + fmtRM(bakiTunai);
+    elBakiTunai.className = "kad-nilai num " + (bakiTunai >= 0 ? "positif" : "negatif");
+    const elMoBakiCatatan = document.getElementById("mo-baki-tunai-catatan");
+    elMoBakiCatatan.textContent = bilanganTiadaKadar > 0
+      ? `⚠ ${bilanganTiadaKadar} transaksi pasaran asing tiada Kadar Tukaran - tidak termasuk, baki ni belum lengkap.`
+      : "Modal Bersih − perbelanjaan bersih semua pasaran (pasaran asing ditukar ke RM guna Kadar Tukaran transaksi).";
+
+    const wrap = document.getElementById("m-wrap");
+    if (list.length === 0) {
+      wrap.innerHTML = `<div class="kosong"><strong>Tiada rekod modal lagi.</strong>Guna borang di atas untuk tambah rekod pertama.</div>`;
+      return;
+    }
+
+    wrap.innerHTML = `
+      <div class="jadual-bungkus"><table class="jadual">
+        <thead><tr><th>Tarikh</th><th>Jenis</th><th>Jumlah (RM)</th><th>Nota</th><th></th></tr></thead>
+        <tbody>
+          ${list.map((m) => renderBarisModal(m)).join("")}
+        </tbody>
+      </table></div>`;
+
+    wrap.querySelectorAll("[data-aksi='edit']").forEach((b) => b.addEventListener("click", () => {
+      editingModalId = b.dataset.id; confirmingDeleteModalId = null; renderModalList();
+    }));
+    wrap.querySelectorAll("[data-aksi='batal-edit']").forEach((b) => b.addEventListener("click", () => {
+      editingModalId = null; renderModalList();
+    }));
+    wrap.querySelectorAll("[data-aksi='simpan-edit']").forEach((b) => b.addEventListener("click", () => simpanEditModal(b.dataset.id)));
+    wrap.querySelectorAll("[data-aksi='padam']").forEach((b) => b.addEventListener("click", () => {
+      confirmingDeleteModalId = b.dataset.id; editingModalId = null; renderModalList();
+    }));
+    wrap.querySelectorAll("[data-aksi='batal-padam']").forEach((b) => b.addEventListener("click", () => {
+      confirmingDeleteModalId = null; renderModalList();
+    }));
+    wrap.querySelectorAll("[data-aksi='sah-padam']").forEach((b) => b.addEventListener("click", () => padamModal(b.dataset.id)));
+  }
+
+  function renderBarisModal(m) {
+    if (editingModalId === m.id) {
+      return `<tr data-mrow="${m.id}">
+        <td><input type="date" class="em-tarikh" value="${esc(m.tarikh)}" style="width:9.5rem"></td>
+        <td><select class="em-jenis">
+              <option value="MASUK" ${m.jenis === "MASUK" ? "selected" : ""}>MASUK</option>
+              <option value="KELUAR" ${m.jenis === "KELUAR" ? "selected" : ""}>KELUAR</option>
+            </select></td>
+        <td><input type="number" class="em-jumlah" min="0.01" step="0.01" value="${m.jumlah}" style="width:7rem"></td>
+        <td><input type="text" class="em-nota" value="${esc(m.nota || "")}" style="width:10rem"></td>
+        <td class="baris-tindakan">
+          <button type="button" class="btn btn-kecil btn-utama" data-aksi="simpan-edit" data-id="${m.id}">Simpan</button>
+          <button type="button" class="btn btn-kecil" data-aksi="batal-edit">Batal</button>
+        </td>
+      </tr>`;
+    }
+    const tindakanHtml = confirmingDeleteModalId === m.id
+      ? `<span class="catatan-ralat" style="margin:0;">Padam?</span>
+         <button type="button" class="btn btn-kecil btn-bahaya" data-aksi="sah-padam" data-id="${m.id}">Ya</button>
+         <button type="button" class="btn btn-kecil" data-aksi="batal-padam">Tidak</button>`
+      : `<button type="button" class="btn btn-kecil" data-aksi="edit" data-id="${m.id}">Edit</button>
+         <button type="button" class="btn btn-kecil btn-bahaya" data-aksi="padam" data-id="${m.id}">Padam</button>`;
+    return `<tr>
+      <td>${esc(m.tarikh)}</td>
+      <td><span class="pill ${m.jenis === "MASUK" ? "pill-beli" : "pill-jual"}">${m.jenis}</span></td>
+      <td class="num">RM ${fmtRM(m.jumlah)}</td>
+      <td>${esc(m.nota || "")}</td>
+      <td class="baris-tindakan">${tindakanHtml}</td>
+    </tr>`;
+  }
+
+  async function simpanEditModal(id) {
+    const row = document.querySelector(`tr[data-mrow="${id}"]`);
+    if (!row || !dbNs) return;
+    const data = {
+      tarikh: row.querySelector(".em-tarikh").value,
+      jenis: row.querySelector(".em-jenis").value,
+      jumlah: parseFloat(row.querySelector(".em-jumlah").value),
+      nota: row.querySelector(".em-nota").value.trim(),
+    };
+    if (!data.tarikh || isNaN(data.jumlah) || data.jumlah <= 0) return;
+    try {
+      await dbNs.collection("modal").doc(id).update(data);
+      editingModalId = null;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  async function padamModal(id) {
+    if (!dbNs) return;
+    try {
+      await dbNs.collection("modal").doc(id).delete();
+      confirmingDeleteModalId = null;
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  const formTambahModal = document.getElementById("form-tambah-modal");
+  document.getElementById("m-tarikh").value = new Date().toISOString().slice(0, 10);
+  formTambahModal.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const ralatEl = document.getElementById("form-modal-ralat");
+    ralatEl.hidden = true;
+    if (!dbNs) {
+      ralatEl.textContent = "Storan data tidak tersedia pada paparan ini.";
+      ralatEl.hidden = false;
+      return;
+    }
+    const data = {
+      tarikh: document.getElementById("m-tarikh").value,
+      jenis: document.getElementById("m-jenis").value,
+      jumlah: parseFloat(document.getElementById("m-jumlah").value),
+      nota: document.getElementById("m-nota").value.trim(),
+      created_at: new Date().toISOString(),
+    };
+    if (!data.tarikh || isNaN(data.jumlah) || data.jumlah <= 0) {
+      ralatEl.textContent = "Sila lengkapkan semua medan wajib.";
+      ralatEl.hidden = false;
+      return;
+    }
+    const submitBtn = document.getElementById("m-submit");
+    submitBtn.disabled = true;
+    try {
+      await dbNs.collection("modal").add(data);
+      formTambahModal.reset();
+      document.getElementById("m-tarikh").value = new Date().toISOString().slice(0, 10);
+    } catch (err) {
+      console.error(err);
+      ralatEl.textContent = "Gagal simpan rekod. Sila cuba lagi.";
+      ralatEl.hidden = false;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ---------- Import CSV moomoo ----------
+  const BULAN_SINGKAT = { Jan: 0, Feb: 1, Mar: 2, Apr: 3, May: 4, Jun: 5, Jul: 6, Aug: 7, Sep: 8, Oct: 9, Nov: 10, Dec: 11 };
+
+  function parseDatetimeMoomoo(teks) {
+    const bersih = teks.trim().replace(/\s+[A-Za-z]{2,5}$/, "");
+    const m = bersih.match(/^([A-Za-z]{3})\w*\s+(\d{1,2}),\s+(\d{4})\s+(\d{1,2}):(\d{2}):(\d{2})$/);
+    if (!m) return null;
+    const bulan = BULAN_SINGKAT[m[1].slice(0, 3)];
+    if (bulan === undefined) return null;
+    const hari = String(parseInt(m[2], 10)).padStart(2, "0");
+    const bulanStr = String(bulan + 1).padStart(2, "0");
+    const jam = m[4].padStart(2, "0");
+    return {
+      tarikh: `${m[3]}-${bulanStr}-${hari}`,
+      masa: `${jam}:${m[5]}:${m[6]}`,
+    };
+  }
+
+  function angka(teks) {
+    const t = (teks || "").replace(/,/g, "").trim();
+    if (!t) return 0;
+    const n = parseFloat(t);
+    return isNaN(n) ? 0 : n;
+  }
+
+  // Baca lajur "Markets" dan "Currency" CSV moomoo. Lalai MY/MYR jika kosong.
+  function kesanPasaran(baris) {
+    const pasaran = (baris["Markets"] || "").trim().toUpperCase() || "MY";
+    const mataWang = (baris["Currency"] || "").trim().toUpperCase() || "MYR";
+    return { pasaran, mata_wang: mataWang };
+  }
+
+  // Format lama: Fill Qty / Fill Price / Fill Time, tiada caj
+  function parseHistoryTransactions(data) {
+    const hasil = [];
+    const dilihat = new Set();
+    for (const baris of data) {
+      const simbol = (baris["Symbol"] || "").trim();
+      const nama = (baris["Name"] || "").trim();
+      const sisi = (baris["Side"] || "").trim().toLowerCase();
+      const qtyMentah = (baris["Fill Qty"] || "").replace(/,/g, "").trim();
+      const hargaMentah = (baris["Fill Price"] || "").replace(/,/g, "").trim();
+      const masaIsi = (baris["Fill Time"] || "").trim();
+      if (!simbol || !sisi || !masaIsi) continue;
+
+      const kaunter = (nama || simbol).trim().toUpperCase();
+      const kunciPendua = kaunter + "|" + masaIsi;
+      if (dilihat.has(kunciPendua)) continue;
+      dilihat.add(kunciPendua);
+
+      let jenis;
+      if (sisi === "buy") jenis = "BELI";
+      else if (sisi === "sell") jenis = "JUAL";
+      else continue;
+
+      const dt = parseDatetimeMoomoo(masaIsi);
+      const kuantiti = parseFloat(qtyMentah);
+      const hargaSeunit = parseFloat(hargaMentah);
+      if (!dt || isNaN(kuantiti) || kuantiti <= 0 || isNaN(hargaSeunit)) continue;
+
+      const { pasaran, mata_wang } = kesanPasaran(baris);
+      hasil.push({
+        tarikh: dt.tarikh, masa: dt.masa, pasaran, mata_wang, kaunter, jenis, kuantiti, harga_seunit: hargaSeunit,
+        komisen: 0, yuran_platform: 0, yuran_kliring: 0, duti_setem: 0, sst: 0, caj_lain: 0, caj: 0,
+        nota: `Import moomoo (kod ${simbol})`,
+        tarikhMungkinTakTepat: false,
+      });
+    }
+    return hasil;
+  }
+
+  // Format baharu: Status + Filled@Avg Price + Total (caj sebenar). Hanya Status === "Filled".
+  function parseOrderHistoryCost(data) {
+    const hasil = [];
+    const dilihat = new Set();
+    for (const baris of data) {
+      const status = (baris["Status"] || "").trim().toLowerCase();
+      if (status !== "filled") continue;
+
+      const simbol = (baris["Symbol"] || "").trim();
+      const nama = (baris["Name"] || "").trim();
+      const sisi = (baris["Side"] || "").trim().toLowerCase();
+      const masaOrder = (baris["Order Time"] || "").trim();
+      const diisi = (baris["Filled@Avg Price"] || "").trim();
+      const jenisPesanan = (baris["Order Type"] || "").trim();
+      if (!simbol || !sisi || !masaOrder || diisi.indexOf("@") === -1) continue;
+
+      const kaunter = (nama || simbol).trim().toUpperCase();
+      const kunciPendua = kaunter + "|" + masaOrder;
+      if (dilihat.has(kunciPendua)) continue;
+      dilihat.add(kunciPendua);
+
+      let jenis;
+      if (sisi === "buy") jenis = "BELI";
+      else if (sisi === "sell") jenis = "JUAL";
+      else continue;
+
+      const bahagianDiisi = diisi.split("@");
+      const qtyMentah = (bahagianDiisi[0] || "").replace(/,/g, "").trim();
+      const hargaMentah = (bahagianDiisi[1] || "").replace(/,/g, "").trim();
+
+      const dt = parseDatetimeMoomoo(masaOrder);
+      const kuantiti = parseFloat(qtyMentah);
+      const hargaSeunit = parseFloat(hargaMentah);
+      if (!dt || isNaN(kuantiti) || kuantiti <= 0 || isNaN(hargaSeunit)) continue;
+
+      const komisen = angka(baris["Commission"]);
+      const yuranPlatform = angka(baris["Platform Fees"]);
+      const yuranKliring = angka(baris["Clearing Fee"]);
+      const dutiSetem = angka(baris["Stamp Duty"]);
+      const sst = angka(baris["SST"]);
+      const jumlahCajCsv = angka(baris["Total"]);
+
+      // Baki selepas tolak 5 fee yang diketahui - serap sebarang fee lain
+      // yang mungkin disertakan dalam Total tapi tiada lajur khusus.
+      let cajLain = Math.round((jumlahCajCsv - (komisen + yuranPlatform + yuranKliring + dutiSetem + sst)) * 100) / 100;
+      if (Math.abs(cajLain) < 0.005) cajLain = 0;
+
+      const { pasaran, mata_wang } = kesanPasaran(baris);
+      hasil.push({
+        tarikh: dt.tarikh, masa: dt.masa, pasaran, mata_wang, kaunter, jenis, kuantiti, harga_seunit: hargaSeunit,
+        komisen: Math.round(komisen * 100) / 100,
+        yuran_platform: Math.round(yuranPlatform * 100) / 100,
+        yuran_kliring: Math.round(yuranKliring * 100) / 100,
+        duti_setem: Math.round(dutiSetem * 100) / 100,
+        sst: Math.round(sst * 100) / 100,
+        caj_lain: cajLain,
+        caj: Math.round(jumlahCajCsv * 100) / 100,
+        nota: `Import moomoo (kod ${simbol})`,
+        // Pesanan Stop/Trigger: "Order Time" ialah masa pesanan DILETAK,
+        // bukan masa ia dipenuhi - tarikh di atas mungkin tak tepat.
+        tarikhMungkinTakTepat: jenisPesanan.toLowerCase().includes("stop"),
+      });
+    }
+    return hasil;
+  }
+
+  function parseMoomooCsv(teksCsv) {
+    const parsed = Papa.parse(teksCsv, { header: true, skipEmptyLines: true });
+    const fields = (parsed.meta && parsed.meta.fields) || [];
+    const hasil = fields.includes("Status") && fields.includes("Filled@Avg Price")
+      ? parseOrderHistoryCost(parsed.data)
+      : parseHistoryTransactions(parsed.data);
+    hasil.sort((a, b) => (a.tarikh + (a.masa || "") + a.kaunter).localeCompare(b.tarikh + (b.masa || "") + b.kaunter));
+    return hasil;
+  }
+
+  // Toleransi tarikh (hari) bila kesan pendua. Pesanan Stop/Trigger moomoo
+  // kadang guna "Order Time" (masa pesanan diletak) yang boleh berbeza
+  // beberapa hari daripada masa sebenar ia dipenuhi - padanan tarikh tepat
+  // tak mencukupi utk kes ni.
+  const HARI_TOLERANSI_PENDUA = 7;
+  function hariAntara(a, b) {
+    return Math.abs((new Date(a + "T00:00:00Z") - new Date(b + "T00:00:00Z")) / 86400000);
+  }
+  function tandakanMungkinPendua(barisBaharu, transaksiSediaAda) {
+    const olehKunci = new Map();
+    for (const t of transaksiSediaAda) {
+      const kunci = [t.kaunter, t.jenis, t.kuantiti, Math.round(t.harga_seunit * 10000) / 10000].join("|");
+      if (!olehKunci.has(kunci)) olehKunci.set(kunci, []);
+      olehKunci.get(kunci).push(t.tarikh);
+    }
+    for (const b of barisBaharu) {
+      const kunci = [b.kaunter, b.jenis, b.kuantiti, Math.round(b.harga_seunit * 10000) / 10000].join("|");
+      const tarikhSepadan = olehKunci.get(kunci) || [];
+      b.mungkinPendua = tarikhSepadan.some((t) => hariAntara(b.tarikh, t) <= HARI_TOLERANSI_PENDUA);
+    }
+  }
+
+  function renderPratontonCsv() {
+    tandakanMungkinPendua(csvBarisPratonton, semuaTransaksi);
+    // Baris yang nampak sama dengan transaksi sedia ada dilangkau terus
+    // daripada pratonton - tak perlu pengguna semak/tolak secara manual.
+    const jumlahAsal = csvBarisPratonton.length;
+    csvBarisPratonton = csvBarisPratonton.filter((b) => !b.mungkinPendua);
+    const bilanganPendua = jumlahAsal - csvBarisPratonton.length;
+    if (csvBarisPratonton.length === 0) {
+      document.getElementById("csv-pratonton-wrap").hidden = true;
+      const ralatEl = document.getElementById("csv-ralat");
+      ralatEl.textContent = `Semua ${jumlahAsal} baris dalam fail ini nampak sama dengan transaksi sedia ada dalam sistem - tiada yang baharu utk diimport.`;
+      ralatEl.hidden = false;
+      return;
+    }
+    const notisPendua = document.getElementById("csv-pendua-notis");
+    if (bilanganPendua > 0) {
+      notisPendua.textContent = `${bilanganPendua} baris dilangkau terus (tidak dipaparkan) sebab nampak sama dengan transaksi sedia ada dalam sistem - tiada tindakan diperlukan, ia tidak akan diimport semula.`;
+      notisPendua.hidden = false;
+    } else {
+      notisPendua.hidden = true;
+    }
+
+    const wrap = document.getElementById("csv-pratonton-jadual");
+    wrap.innerHTML = `
+      <div class="jadual-bungkus"><table class="jadual">
+        <thead><tr>
+          <th></th><th>Tarikh</th><th>Masa</th><th>Pasaran</th><th>Kaunter</th><th>Jenis</th><th>Kuantiti</th><th>Harga/Unit</th>
+          <th>Kadar Tukaran (ke RM)</th>
+          <th>Komisen</th><th>Yuran Platform</th><th>Yuran Kliring</th><th>Duti Setem</th><th>SST</th><th>Caj Lain</th>
+          <th>Jumlah Caj</th>
+        </tr></thead>
+        <tbody>
+          ${csvBarisPratonton.map((b, i) => {
+            const simbol = simbolMataWang(b.mata_wang || (b.pasaran === "MY" || !b.pasaran ? "MYR" : ""));
+            return `<tr>
+            <td><input type="checkbox" class="csv-pilih" data-idx="${i}" checked></td>
+            <td>
+              <input type="date" class="csv-tarikh" data-idx="${i}" value="${esc(b.tarikh)}" style="width:9rem">
+              ${b.tarikhMungkinTakTepat ? '<span class="pill pill-jual" title="Pesanan Stop/Trigger - tarikh ialah masa pesanan diletak, bukan masa dipenuhi">⚠ SEMAK TARIKH</span>' : ""}
+            </td>
+            <td><input type="time" class="csv-masa" data-idx="${i}" step="1" value="${esc(b.masa || "")}" style="width:7rem"></td>
+            <td>${esc(b.pasaran || "MY")}</td>
+            <td>${esc(b.kaunter)}</td>
+            <td><span class="pill ${b.jenis === "BELI" ? "pill-beli" : "pill-jual"}">${b.jenis}</span></td>
+            <td class="num">${fmtUnit(b.kuantiti)}</td>
+            <td class="num">${simbol} ${fmtKos(b.harga_seunit)}</td>
+            <td>${(b.pasaran || "MY") !== "MY" ? `<input type="number" class="csv-kadar-tukaran" data-idx="${i}" min="0.000001" step="0.000001" placeholder="cth 4.2650" style="width:5.5rem">` : ""}</td>
+            <td class="num">${simbol} ${fmtRM(b.komisen)}</td>
+            <td class="num">${simbol} ${fmtRM(b.yuran_platform)}</td>
+            <td class="num">${simbol} ${fmtRM(b.yuran_kliring)}</td>
+            <td class="num">${simbol} ${fmtRM(b.duti_setem)}</td>
+            <td class="num">${simbol} ${fmtRM(b.sst)}</td>
+            <td class="num">${simbol} ${fmtRM(b.caj_lain)}</td>
+            <td class="num">${simbol} ${fmtRM(b.caj)}</td>
+          </tr>`;
+          }).join("")}
+        </tbody>
+      </table></div>`;
+    document.getElementById("csv-pratonton-wrap").hidden = false;
+  }
+
+  document.getElementById("csv-pratonton-btn").addEventListener("click", () => {
+    const ralatEl = document.getElementById("csv-ralat");
+    ralatEl.hidden = true;
+    const fail = document.getElementById("csv-fail").files[0];
+    if (!fail) {
+      ralatEl.textContent = "Sila pilih fail CSV terlebih dahulu.";
+      ralatEl.hidden = false;
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        csvBarisPratonton = parseMoomooCsv(String(reader.result));
+      } catch (e) {
+        console.error(e);
+        ralatEl.textContent = "Fail CSV tidak dapat dibaca. Pastikan ia eksport terus dari moomoo.";
+        ralatEl.hidden = false;
+        return;
+      }
+      if (csvBarisPratonton.length === 0) {
+        ralatEl.textContent = "Tiada transaksi sah dijumpai dalam fail ini.";
+        ralatEl.hidden = false;
+        return;
+      }
+      renderPratontonCsv();
+    };
+    reader.onerror = () => {
+      ralatEl.textContent = "Gagal baca fail. Sila cuba lagi.";
+      ralatEl.hidden = false;
+    };
+    reader.readAsText(fail);
+  });
+
+  document.getElementById("csv-batal-btn").addEventListener("click", () => {
+    csvBarisPratonton = [];
+    document.getElementById("csv-pratonton-wrap").hidden = true;
+    document.getElementById("csv-fail").value = "";
+  });
+
+  document.getElementById("csv-sahkan-btn").addEventListener("click", async () => {
+    if (!dbNs) return;
+    const checkboxes = Array.from(document.querySelectorAll(".csv-pilih:checked"));
+    const btn = document.getElementById("csv-sahkan-btn");
+    const progresEl = document.getElementById("csv-progres");
+    btn.disabled = true;
+    progresEl.hidden = false;
+    let selesai = 0;
+    const baseMasa = Date.now();
+    for (const cb of checkboxes) {
+      const idx = parseInt(cb.dataset.idx, 10);
+      const b = csvBarisPratonton[idx];
+      const inputTarikh = document.querySelector(`.csv-tarikh[data-idx="${idx}"]`);
+      const inputMasa = document.querySelector(`.csv-masa[data-idx="${idx}"]`);
+      const inputKadar = document.querySelector(`.csv-kadar-tukaran[data-idx="${idx}"]`);
+      const tarikhAkhir = (inputTarikh && inputTarikh.value) || b.tarikh;
+      const masaAkhir = (inputMasa && inputMasa.value) || b.masa || "";
+      progresEl.textContent = `Mengimport ${selesai + 1} / ${checkboxes.length}…`;
+      try {
+        await dbNs.collection("transaksi").add({
+          tarikh: tarikhAkhir, masa: masaAkhir, pasaran: b.pasaran || "MY", mata_wang: b.mata_wang || "MYR",
+          kaunter: b.kaunter, jenis: b.jenis,
+          kuantiti: sahkanKuantiti(b.pasaran || "MY", b.kuantiti), harga_seunit: b.harga_seunit,
+          kadar_tukaran: bacaKadarTukaran(b.pasaran || "MY", inputKadar && inputKadar.value),
+          komisen: b.komisen, yuran_platform: b.yuran_platform, yuran_kliring: b.yuran_kliring,
+          duti_setem: b.duti_setem, sst: b.sst, caj_lain: b.caj_lain,
+          nota: b.nota,
+          created_at: new Date(baseMasa + selesai).toISOString(),
+        });
+        selesai++;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+    progresEl.textContent = `${selesai} transaksi berjaya diimport.`;
+    btn.disabled = false;
+    csvBarisPratonton = [];
+    document.getElementById("csv-pratonton-wrap").hidden = true;
+    document.getElementById("csv-fail").value = "";
+    setTimeout(() => { location.hash = "#transaksi"; }, 900);
+  });
+
+  // ---------- Laporan ----------
+  function renderLaporan() {
+    const { ledger } = kiraLedgerIkutPasaran(susunTransaksi(semuaTransaksi));
+    const jualanSemua = ledger.filter((t) => t.jenis === "JUAL").reverse();
+
+    document.getElementById("l-intro").textContent =
+      `Ringkasan untung/rugi sebenar daripada ${jualanSemua.length} transaksi JUAL yang telah anda rekodkan setakat ini — bukan anggaran nilai pasaran semasa bagi saham yang masih anda pegang (lihat Dashboard untuk itu). Dikira berasingan bagi setiap pasaran supaya mata wang tidak bercampur.`;
+
+    // Nilai RM setiap jualan - guna kadar tukaran transaksi tu sendiri (bukan
+    // kadar semasa), supaya ia mencerminkan nilai RM sebenar waktu jualan
+    // berlaku. MY sudah dalam RM; pasaran lain perlukan kadar_tukaran diisi
+    // manual, jika tiada - tak disertakan dalam jumlah RM gabungan.
+    jualanSemua.forEach((t) => {
+      if ((t.pasaran || "MY") === "MY") t.untungRugiRm = t.untungRugi;
+      else if (t.kadar_tukaran) t.untungRugiRm = t.untungRugi * t.kadar_tukaran;
+      else t.untungRugiRm = null;
+    });
+    const gabunganWrap = document.getElementById("l-gabungan-wrap");
+    if (jualanSemua.length > 0) {
+      const jumlahKeseluruhanRm = jualanSemua.reduce((acc, t) => acc + (t.untungRugiRm ?? 0), 0);
+      const bilanganTiadaKadar = jualanSemua.filter((t) => (t.pasaran || "MY") !== "MY" && t.kadar_tukaran == null).length;
+      gabunganWrap.hidden = false;
+      const elNilai = document.getElementById("l-gabungan-nilai");
+      elNilai.textContent = "RM " + fmtRM(jumlahKeseluruhanRm);
+      elNilai.className = "kad-nilai num " + (jumlahKeseluruhanRm >= 0 ? "positif" : "negatif");
+      document.getElementById("l-gabungan-catatan").textContent = bilanganTiadaKadar > 0
+        ? `⚠ ${bilanganTiadaKadar} jualan pasaran asing tiada Kadar Tukaran direkod — tidak termasuk dalam jumlah ini. Edit transaksi berkenaan utk isi kadar tukaran.`
+        : "Ditukar ke RM guna Kadar Tukaran yang direkod pada setiap transaksi jualan pasaran asing.";
+    } else {
+      gabunganWrap.hidden = true;
+    }
+
+    const tabBar = document.getElementById("l-pasaran-tab-bar");
+    const wrap = document.getElementById("l-pasaran-wrap");
+    document.getElementById("l-tiada-jualan").hidden = jualanSemua.length !== 0;
+
+    // Papar tab MY & US sentiasa (walaupun tiada jualan lagi utk pasaran tu),
+    // plus mana-mana pasaran lain yang ada dalam data.
+    const pasaranList = [...new Set([...Object.keys(PASARAN_MATA_WANG_LALAI), ...jualanSemua.map((t) => t.pasaran || "MY")])].sort();
+    if (!pasaranList.includes(laporanPasaranAktif)) {
+      laporanPasaranAktif = pasaranList[0];
+    }
+
+    tabBar.innerHTML = pasaranList.map((p) => {
+      const jualanP = jualanSemua.filter((t) => (t.pasaran || "MY") === p);
+      const simbolTab = simbolMataWang((jualanP[0] && jualanP[0].mata_wang) || (semuaTransaksi.find((t) => t.pasaran === p) || {}).mata_wang || PASARAN_MATA_WANG_LALAI[p] || "");
+      return `<button type="button" class="btn ${p === laporanPasaranAktif ? "btn-utama" : ""}" data-tab-pasaran="${esc(p)}">Pasaran ${esc(p)} (${esc(simbolTab)})</button>`;
+    }).join("");
+    tabBar.querySelectorAll("[data-tab-pasaran]").forEach((b) => b.addEventListener("click", () => {
+      laporanPasaranAktif = b.dataset.tabPasaran;
+      renderLaporan();
+    }));
+
+    wrap.innerHTML = pasaranList.map((p) => {
+      const jualan = jualanSemua.filter((t) => (t.pasaran || "MY") === p);
+      const simbol = simbolMataWang((jualan[0] && jualan[0].mata_wang) || (semuaTransaksi.find((t) => t.pasaran === p) || {}).mata_wang || PASARAN_MATA_WANG_LALAI[p] || "");
+      const menang = jualan.filter((t) => t.untungRugi > 0);
+      const kalah = jualan.filter((t) => t.untungRugi < 0);
+      const jumlahUntung = menang.reduce((acc, t) => acc + t.untungRugi, 0);
+      const jumlahRugi = kalah.reduce((acc, t) => acc + t.untungRugi, 0);
+      const bersih = jumlahUntung + jumlahRugi;
+
+      const jadualHtml = jualan.length === 0
+        ? `<p class="kosong">Belum ada rekod jualan untuk pasaran ${esc(p)} lagi.</p>`
+        : `<div class="jadual-bungkus"><table class="jadual">
+          <thead><tr>
+            <th>Tarikh</th><th>Kaunter</th><th>Kuantiti Jual</th><th>Harga Beli Purata/Unit</th>
+            <th>Harga Jual/Unit</th><th>Caj</th><th>Untung/Rugi</th><th>Peratus Untung/Rugi</th>
+            ${p !== "MY" ? "<th>Nilai RM</th>" : ""}
+          </tr></thead>
+          <tbody>
+            ${jualan.map((t) => {
+              const kosAsas = t.kosPurataSebelum * t.kuantiti;
+              const peratus = kosAsas > 0 ? (t.untungRugi / kosAsas) * 100 : null;
+              const kelasWarna = t.untungRugi >= 0 ? "positif" : "negatif";
+              return `<tr>
+                <td>${esc(t.tarikh)}</td><td>${esc(t.kaunter)}</td>
+                <td class="num">${fmtUnit(t.kuantiti)}</td><td class="num">${simbol} ${fmtKos(t.kosPurataSebelum)}</td>
+                <td class="num">${simbol} ${fmtKos(t.harga_seunit)}</td><td class="num">${simbol} ${fmtRM(t.caj)}</td>
+                <td class="num ${kelasWarna}">${simbol} ${fmtRM(t.untungRugi)}</td>
+                <td class="num ${kelasWarna}">${peratus === null ? "-" : (Math.round(peratus * 100) / 100).toFixed(2) + "%"}</td>
+                ${p !== "MY" ? `<td class="num ${kelasWarna}">${t.untungRugiRm !== null ? "RM " + fmtRM(t.untungRugiRm) : "-"}</td>` : ""}
+              </tr>`;
+            }).join("")}
+          </tbody>
+        </table></div>`;
+
+      return `
+        <div data-tab-kandungan="${esc(p)}" ${p === laporanPasaranAktif ? "" : "hidden"}>
+        <div class="grid-ringkasan">
+          <div class="kad">
+            <span class="kad-label">Jumlah Untung</span>
+            <span class="kad-nilai positif num">${simbol} ${fmtRM(jumlahUntung)}</span>
+            <span class="kad-catatan">Jumlah daripada ${menang.length} jualan yang untung</span>
+          </div>
+          <div class="kad">
+            <span class="kad-label">Jumlah Rugi</span>
+            <span class="kad-nilai negatif num">${simbol} ${fmtRM(jumlahRugi)}</span>
+            <span class="kad-catatan">Jumlah daripada ${kalah.length} jualan yang rugi</span>
+          </div>
+          <div class="kad">
+            <span class="kad-label">Untung/Rugi Bersih</span>
+            <span class="kad-nilai num ${bersih >= 0 ? "positif" : "negatif"}">${simbol} ${fmtRM(bersih)}</span>
+            <span class="kad-catatan">Jumlah Untung + Jumlah Rugi (prestasi dagangan pasaran ini)</span>
+          </div>
+        </div>
+        <h3 style="margin-bottom:0.8rem;">Rekod Jualan (Perincian Setiap Transaksi)</h3>
+        ${jadualHtml}
+        </div>`;
+    }).join("");
+  }
+
+  // ---------- Borang tambah ----------
+  const formTambah = document.getElementById("form-tambah");
+  document.getElementById("f-tarikh").value = new Date().toISOString().slice(0, 10);
+
+  function kemaskiniLangkahKuantiti() {
+    const inputKuantiti = document.getElementById("f-kuantiti");
+    const catatan = document.getElementById("f-kuantiti-catatan");
+    const kadarWrap = document.getElementById("f-kadar-wrap");
+    const kadarCatatan = document.getElementById("f-kadar-catatan");
+    if (document.getElementById("f-pasaran").value === "MY") {
+      inputKuantiti.step = "1";
+      inputKuantiti.min = "1";
+      catatan.textContent = "Pasaran MY: kuantiti mesti unit bulat. Tukar ke US untuk benarkan kuantiti pecahan (saham serpihan).";
+      kadarWrap.hidden = true;
+      kadarCatatan.hidden = true;
+    } else {
+      inputKuantiti.step = "any";
+      inputKuantiti.min = "0.000001";
+      catatan.textContent = "Pasaran US: kuantiti boleh pecahan (cth 0.0132 unit untuk saham serpihan).";
+      kadarWrap.hidden = false;
+      kadarCatatan.hidden = false;
+    }
+  }
+  document.getElementById("f-pasaran").addEventListener("change", kemaskiniLangkahKuantiti);
+  kemaskiniLangkahKuantiti();
+
+  formTambah.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const ralatEl = document.getElementById("form-ralat");
+    ralatEl.hidden = true;
+    if (!dbNs) {
+      ralatEl.textContent = "Storan data tidak tersedia pada paparan ini.";
+      ralatEl.hidden = false;
+      return;
+    }
+    const pasaranDipilih = document.getElementById("f-pasaran").value;
+    const data = {
+      tarikh: document.getElementById("f-tarikh").value,
+      masa: document.getElementById("f-masa").value,
+      pasaran: pasaranDipilih,
+      mata_wang: PASARAN_MATA_WANG_LALAI[pasaranDipilih] || pasaranDipilih,
+      kaunter: document.getElementById("f-kaunter").value.trim().toUpperCase(),
+      jenis: document.getElementById("f-jenis").value,
+      kuantiti: sahkanKuantiti(pasaranDipilih, document.getElementById("f-kuantiti").value),
+      harga_seunit: parseFloat(document.getElementById("f-harga").value),
+      kadar_tukaran: bacaKadarTukaran(pasaranDipilih, document.getElementById("f-kadar-tukaran").value),
+      komisen: parseFloat(document.getElementById("f-komisen").value || "0"),
+      yuran_platform: parseFloat(document.getElementById("f-yuran-platform").value || "0"),
+      yuran_kliring: parseFloat(document.getElementById("f-yuran-kliring").value || "0"),
+      duti_setem: parseFloat(document.getElementById("f-duti-setem").value || "0"),
+      sst: parseFloat(document.getElementById("f-sst").value || "0"),
+      caj_lain: parseFloat(document.getElementById("f-caj-lain").value || "0"),
+      nota: document.getElementById("f-nota").value.trim(),
+      created_at: new Date().toISOString(),
+    };
+    if (!data.tarikh || !data.kaunter || !data.kuantiti || isNaN(data.harga_seunit)) {
+      ralatEl.textContent = "Sila lengkapkan semua medan wajib.";
+      ralatEl.hidden = false;
+      return;
+    }
+    const submitBtn = document.getElementById("f-submit");
+    submitBtn.disabled = true;
+    try {
+      await dbNs.collection("transaksi").add(data);
+      formTambah.reset();
+      document.getElementById("f-tarikh").value = new Date().toISOString().slice(0, 10);
+      for (const id of ["f-komisen", "f-yuran-platform", "f-yuran-kliring", "f-duti-setem", "f-sst", "f-caj-lain"]) {
+        document.getElementById(id).value = "0";
+      }
+      kemaskiniLangkahKuantiti();
+    } catch (err) {
+      console.error(err);
+      ralatEl.textContent = "Gagal simpan transaksi. Sila cuba lagi.";
+      ralatEl.hidden = false;
+    } finally {
+      submitBtn.disabled = false;
+    }
+  });
+
+  // ---------- Sambung ke storan tempatan (IndexedDB) ----------
+  async function mula() {
+    renderRoute();
+    renderSemua();
+    try {
+      const idb = await bukaIndexedDB();
+      await semaikDataAwalJikaKosong(idb);
+      const db = buatDbNsLokal(idb);
+      dbNs = db;
+      db.collection("transaksi").onSnapshot(
+        (snap) => {
+          semuaTransaksi = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+          document.getElementById("dashboard-status").hidden = true;
+          document.getElementById("dashboard-content").hidden = false;
+          document.getElementById("t-status").hidden = true;
+          document.getElementById("t-wrap").hidden = false;
+          document.getElementById("l-status").hidden = true;
+          document.getElementById("l-content").hidden = false;
+          renderSemua();
+        },
+        (err) => {
+          console.error(err);
+          const msg = "Ralat memuatkan data: " + (err && err.message ? err.message : "tidak diketahui");
+          document.getElementById("dashboard-status").textContent = msg;
+          document.getElementById("t-status").textContent = msg;
+          document.getElementById("l-status").textContent = msg;
+        }
+      );
+      db.collection("modal").onSnapshot(
+        (snap) => {
+          semuaModal = snap.docs.map((d) => Object.assign({ id: d.id }, d.data()));
+          document.getElementById("m-status").hidden = true;
+          document.getElementById("m-wrap").hidden = false;
+          renderSemua();
+        },
+        (err) => {
+          console.error(err);
+          document.getElementById("m-status").textContent = "Ralat memuatkan data: " + (err && err.message ? err.message : "tidak diketahui");
+        }
+      );
+    } catch (e) {
+      console.error(e);
+      const msg = "Storan tempatan (IndexedDB) tidak tersedia pada pelayar ini — mungkin anda dalam mod pelayaran peribadi/incognito, atau storan disekat. Cuba buka dalam tab biasa.";
+      document.getElementById("dashboard-status").textContent = msg;
+      document.getElementById("t-status").textContent = msg;
+      document.getElementById("m-status").textContent = msg;
+      document.getElementById("l-status").textContent = msg;
+    }
+  }
+
+  // ---------- Data & Backup: eksport / import JSON ----------
+  document.getElementById("data-eksport-btn").addEventListener("click", () => {
+    const statusEl = document.getElementById("data-eksport-status");
+    try {
+      const payload = {
+        eksport_dari: "SahamAku",
+        versi: 1,
+        pada: new Date().toISOString(),
+        transaksi: semuaTransaksi,
+        modal: semuaModal,
+      };
+      const teks = JSON.stringify(payload, null, 2);
+      const blob = new Blob([teks], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      const tarikhFail = new Date().toISOString().slice(0, 10);
+      a.href = url;
+      a.download = `sahamaku-backup-${tarikhFail}.json`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      statusEl.textContent = `Backup dimuat turun: ${semuaTransaksi.length} transaksi, ${semuaModal.length} rekod modal.`;
+    } catch (e) {
+      console.error(e);
+      statusEl.textContent = "Gagal eksport backup. Sila cuba lagi.";
+    }
+  });
+
+  document.getElementById("data-import-btn").addEventListener("click", async () => {
+    const statusEl = document.getElementById("data-import-status");
+    const fail = document.getElementById("data-import-fail").files[0];
+    if (!fail) {
+      statusEl.textContent = "Sila pilih fail backup .json terlebih dahulu.";
+      return;
+    }
+    if (!dbNs) {
+      statusEl.textContent = "Storan tempatan belum sedia. Sila cuba lagi sebentar.";
+      return;
+    }
+    statusEl.textContent = "Mengimport…";
+    try {
+      const teks = await fail.text();
+      const payload = JSON.parse(teks);
+      if (!payload || (!Array.isArray(payload.transaksi) && !Array.isArray(payload.modal))) {
+        statusEl.textContent = "Fail ini bukan format backup SahamAku yang sah.";
+        return;
+      }
+      let jumlahTx = 0;
+      for (const t of payload.transaksi || []) {
+        if (!t || !t.id) continue;
+        const { id, ...rest } = t;
+        await tulisStoreLokal(dbNs._idb, "transaksi", (store) => store.put(Object.assign({ id }, rest)));
+        jumlahTx++;
+      }
+      let jumlahModal = 0;
+      for (const m of payload.modal || []) {
+        if (!m || !m.id) continue;
+        const { id, ...rest } = m;
+        await tulisStoreLokal(dbNs._idb, "modal", (store) => store.put(Object.assign({ id }, rest)));
+        jumlahModal++;
+      }
+      // Segar semula paparan selepas tulis terus ke IndexedDB (tak lalui dbNs.add/update
+      // supaya ID asal daripada fail backup dikekalkan, bukan ID baharu dijana).
+      const [snapTx, snapModal] = await Promise.all([
+        semuaDariStoreLokal(dbNs._idb, "transaksi"),
+        semuaDariStoreLokal(dbNs._idb, "modal"),
+      ]);
+      semuaTransaksi = snapTx;
+      semuaModal = snapModal;
+      renderSemua();
+      statusEl.textContent = `Import selesai: ${jumlahTx} transaksi, ${jumlahModal} rekod modal diproses (ditulis ganti/ditambah).`;
+      document.getElementById("data-import-fail").value = "";
+    } catch (e) {
+      console.error(e);
+      statusEl.textContent = "Gagal baca/import fail. Pastikan ia fail backup .json yang sah daripada sistem ni.";
+    }
+  });
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", mula);
+  } else {
+    mula();
+  }
+
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+})();
+</script>
